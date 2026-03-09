@@ -1,8 +1,6 @@
 package com.deepthinking.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.common.utils.StringUtil;
-import com.deepthinking.mysql.entity.StockKlineMinute;
 import com.deepthinking.mysql.entity.StockTechMinute;
 import com.deepthinking.strategy.*;
 import com.google.common.collect.Lists;
@@ -13,16 +11,10 @@ import org.springframework.util.CollectionUtils;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseBarSeries;
 import org.ta4j.core.BaseBarSeriesBuilder;
-import org.ta4j.core.indicators.*;
-import org.ta4j.core.indicators.averages.EMAIndicator;
+import org.ta4j.core.indicators.StochasticOscillatorDIndicator;
+import org.ta4j.core.indicators.StochasticOscillatorKIndicator;
 import org.ta4j.core.indicators.averages.SMAIndicator;
-import org.ta4j.core.indicators.bollinger.BollingerBandsLowerIndicator;
-import org.ta4j.core.indicators.bollinger.BollingerBandsMiddleIndicator;
-import org.ta4j.core.indicators.bollinger.BollingerBandsUpperIndicator;
 import org.ta4j.core.indicators.helpers.*;
-import org.ta4j.core.indicators.numeric.NumericIndicator;
-import org.ta4j.core.indicators.statistics.StandardDeviationIndicator;
-import org.ta4j.core.indicators.volume.OnBalanceVolumeIndicator;
 import org.ta4j.core.num.DecimalNum;
 import org.ta4j.core.num.Num;
 
@@ -35,11 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cn.hutool.core.text.StrPool.COMMA;
-import static com.deepthinking.common.constant.Constants.*;
-import static com.deepthinking.strategy.DtKDJIndicator.CrossStatus.DEATH_CROSS;
-import static com.deepthinking.strategy.DtKDJIndicator.CrossStatus.GOLDEN_CROSS;
+import static com.deepthinking.common.constant.Constants.ZONE_ID;
 import static com.deepthinking.strategy.StrategyUtils.*;
-import static java.math.BigDecimal.ZERO;
 
 @Slf4j
 @Service

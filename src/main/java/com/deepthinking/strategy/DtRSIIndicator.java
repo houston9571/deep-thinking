@@ -1,7 +1,5 @@
 package com.deepthinking.strategy;
 
-import com.google.common.collect.Lists;
-import org.apache.bcel.generic.RET;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
@@ -14,9 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.deepthinking.common.constant.Constants.HUNDRED;
-import static com.deepthinking.common.constant.Constants.ROUND_MODE;
 import static com.deepthinking.strategy.StrategyUtils.*;
-import static java.lang.Double.PRECISION;
 
 /**
  * 【东财专用版】RSI 计算器

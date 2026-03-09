@@ -10,13 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.deepthinking.common.constant.Constants.DISABLED;
 import static com.deepthinking.common.constant.Constants.ENABLE;
-import static com.deepthinking.common.constant.MarketType.*;
+import static com.deepthinking.common.constant.MarketType.HOLIDAYS;
 import static com.deepthinking.common.enums.DateFormatEnum.DATE;
 import static java.time.format.TextStyle.SHORT;
 import static java.util.Locale.SIMPLIFIED_CHINESE;

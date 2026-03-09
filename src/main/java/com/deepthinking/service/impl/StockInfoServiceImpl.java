@@ -33,8 +33,8 @@ import java.util.Map;
 
 import static com.deepthinking.common.constant.Constants.LABEL_DATA;
 import static com.deepthinking.common.constant.Constants.LABEL_RESULT;
-import static com.deepthinking.common.enums.ErrorCode.*;
 import static com.deepthinking.common.constant.MarketType.*;
+import static com.deepthinking.common.enums.ErrorCode.*;
 
 @Slf4j
 @Service

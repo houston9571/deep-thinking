@@ -3,38 +3,30 @@ package com.deepthinking.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.SystemClock;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyH5Api;
 import com.deepthinking.client.EastMoneyStockApi;
-import com.deepthinking.common.enums.DateFormatEnum;
-import com.deepthinking.common.utils.DateUtils;
-import com.deepthinking.common.utils.StringUtil;
-import com.deepthinking.ext.base.Result;
 import com.deepthinking.common.constant.MarketType;
 import com.deepthinking.common.constant.StockCodeUtils;
+import com.deepthinking.common.enums.DateFormatEnum;
+import com.deepthinking.common.utils.DateUtils;
+import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.StockKlineMinute;
-import com.deepthinking.mysql.entity.StockPool;
-import com.deepthinking.mysql.entity.StockTechMinute;
 import com.deepthinking.mysql.mapper.StockKlineMinuteMapper;
 import com.deepthinking.service.StockKlineMinuteService;
-import com.deepthinking.service.StockPoolService;
-import com.deepthinking.service.StockTechMinuteService;
-import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static cn.hutool.core.text.StrPool.COMMA;
 import static com.deepthinking.common.constant.Constants.LABEL_DATA;
-import static com.deepthinking.common.enums.ErrorCode.DATA_UNPAIR;
-import static com.deepthinking.common.enums.ErrorCode.NOT_GET_PAGE_ERROR;
 import static com.deepthinking.common.constant.StockConstants.KLINE_1MIN;
+import static com.deepthinking.common.enums.ErrorCode.NOT_GET_PAGE_ERROR;
 
 @Slf4j
 @Service

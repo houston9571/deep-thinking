@@ -2,7 +2,6 @@ package com.deepthinking.common.constant;
 
 import com.deepthinking.common.enums.DateFormatEnum;
 import com.deepthinking.common.utils.DateUtils;
-import com.deepthinking.common.utils.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

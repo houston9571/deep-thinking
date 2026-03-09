@@ -1,19 +1,13 @@
 package com.deepthinking.strategy;
 
-import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.averages.SMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.num.DecimalNum;
 import org.ta4j.core.num.Num;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static com.deepthinking.strategy.StrategyUtils.NUM_0;
 import static com.deepthinking.strategy.StrategyUtils.NUM_100;
-import static org.ta4j.core.num.DoubleNum.HUNDRED;
 
 /**
  * 【东财官方公式版】BIAS 计算器

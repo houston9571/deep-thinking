@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.deepthinking.ext.serialize.*;
+import com.deepthinking.ext.serialize.DivideBy100Reader;
+import com.deepthinking.ext.serialize.PercentageWriter;
+import com.deepthinking.ext.serialize.StringToDateReader;
 import lombok.*;
 
 import java.math.BigDecimal;

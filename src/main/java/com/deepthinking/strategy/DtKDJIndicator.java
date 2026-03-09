@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.*;
-import org.ta4j.core.num.DecimalNum;
 import org.ta4j.core.num.Num;
 
 import static com.deepthinking.strategy.DtKDJIndicator.CrossStatus.*;

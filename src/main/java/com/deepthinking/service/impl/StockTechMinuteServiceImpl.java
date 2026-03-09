@@ -28,7 +28,6 @@ import java.util.List;
 import static cn.hutool.core.text.StrPool.COMMA;
 import static com.deepthinking.common.constant.Constants.LABEL_DATA;
 import static com.deepthinking.common.constant.StockConstants.KLINE_1MIN;
-import static com.deepthinking.common.enums.ErrorCode.DATA_UNPAIR;
 import static com.deepthinking.common.enums.ErrorCode.NOT_GET_PAGE_ERROR;
 import static com.deepthinking.service.impl.StockIndicatorMinuteCalculator.*;
 

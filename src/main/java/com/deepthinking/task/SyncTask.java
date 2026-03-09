@@ -10,12 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static com.deepthinking.common.constant.MarketType.*;
 

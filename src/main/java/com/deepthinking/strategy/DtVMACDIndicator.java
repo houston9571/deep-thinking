@@ -1,8 +1,6 @@
 package com.deepthinking.strategy;
 
-import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
-import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
 import org.ta4j.core.num.Num;
 
@@ -10,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.deepthinking.strategy.StrategyUtils.*;
-import static com.deepthinking.strategy.StrategyUtils.NUM_1;
-import static com.deepthinking.strategy.StrategyUtils.NUM_2;
-import static com.deepthinking.strategy.StrategyUtils.numOf;
 
 /**
  * 东方财富版 MACD 指标（ta4j 0.22 + CachedIndicator）

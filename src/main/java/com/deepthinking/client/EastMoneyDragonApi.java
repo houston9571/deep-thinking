@@ -6,9 +6,6 @@ import com.dtflys.forest.annotation.Get;
 import com.dtflys.forest.annotation.Var;
 import org.springframework.stereotype.Component;
 
-import static cn.hutool.core.text.StrPool.COLON;
-import static com.dtflys.forest.http.ForestHeader.HOST;
-
 @Component
 @BaseRequest(baseURL = "https://datacenter-web.eastmoney.com", headers = {"User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"})
 public interface EastMoneyDragonApi {
