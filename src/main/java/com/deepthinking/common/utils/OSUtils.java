@@ -37,7 +37,7 @@ public class OSUtils {
         t.put("TotalMemory", total + "MB");
         t.put("MaxMemory", max + "MB");
         t.put("FreeMemory", free + "MB");
-        t.put("RealUsage", (max - total + free) + "MB");
+        t.put("RealUsage", (max - free) + "MB");
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         t.put("HeapUsage", memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024) + "MB");
         t.put("NonHeapUsage", memoryMXBean.getNonHeapMemoryUsage().getUsed() / (1024 * 1024) + "MB");
