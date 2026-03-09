@@ -8,7 +8,7 @@ JAVA_OPTS=" -server -Xms4g -Xmx4g -XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreT
 
 cd $APP_NAME ; git checkout -f main; git pull; mvn clean package -U -Dmaven.test.skip=true; cd ..
 
-ps -ef | grep $JAR_NAME | grep -v grep | awk 'NR==1{print \$2}' | xargs -t -r kill -9; sleep 1s;
+ps -ef | grep $JAR_NAME | grep -v grep | awk 'NR==1{print $2}' | xargs -t -r kill -9; sleep 1s;
 
 cp $APP_NAME/target/$JAR_NAME ./
 
