@@ -134,7 +134,7 @@
 		};
 		// 异步请求函数必须要写在外面，然后在vue里面调用
 		function asyncLoadDate() {
-			axios.get(url + 'fund')
+			axios.get('/fund')
 				.then(function(response) {
 					if (response.status == 200) {
 						vm.fillData(response);
@@ -146,7 +146,7 @@
 		}
 
 		function refleshFundValueHistory() {
-			axios.get(url + 'refleshFundValueHistory')
+			axios.get('/refleshFundValueHistory')
 				.then(function(response) {
 					if (response.status == 200) {
 						asyncLoadDate();
@@ -170,7 +170,7 @@
 			el: "#app",
 			mounted: function() {
 				asyncLoadDate();
-				saveSortData('sort', url + 'setFundSort');
+				saveSortData('sort', '/setFundSort');
 			},
 			methods: {
 				showPic(fcode){
@@ -214,7 +214,7 @@
 					console.debug('getLastGzzf')
 				},
 				moveTop: function(id){ 
-					moveTop(id, 'sort', url + 'setFundSort');
+					moveTop(id, 'sort', '/setFundSort');
 				},	
 				doSort: function(event) {
 					if(this.isDragging){

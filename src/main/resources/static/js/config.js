@@ -1,5 +1,3 @@
-// var url = 'http://' + location.host + '/st/';
-var url = 'http://127.0.0.1/';
 var sortable;
 function saveSortData(id, url) {
 	var el = document.getElementById(id);

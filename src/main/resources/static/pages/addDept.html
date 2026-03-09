@@ -45,7 +45,7 @@
 
     // 异步请求函数必须要写在外面，然后在vue里面调用
     function asyncLoadDate() {
-        axios.get(url + 'org/partner/dept/nomatch/' + params.partnerCode)
+        axios.get('/org/partner/dept/nomatch/' + params.partnerCode)
             .then(function (response) {
                 if (response.status === 200) {
                     vm.fillData(response);
@@ -69,7 +69,7 @@
                 this.tableData = json.data;
             },
             selectDept(partnerCode) {
-                axios.put(url + 'org/partner/dept/' + this.partnerCode + '/' + partnerCode, {}).then(function (response) {
+                axios.put('/org/partner/dept/' + this.partnerCode + '/' + partnerCode, {}).then(function (response) {
                     if (response.status === 200) {
                         alert('操作成功', function () {
                             window.close();

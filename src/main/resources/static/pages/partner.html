@@ -91,7 +91,7 @@
 
     // 异步请求函数必须要写在外面，然后在vue里面调用
     function asyncLoadDate() {
-        axios.get(url + 'org/partner')
+        axios.get('/org/partner')
             .then(function (response) {
                 if (response.status === 200) {
                     vm.fillData(response);
@@ -122,7 +122,7 @@
             },
             deleteDept: function (partnerCode, deptCode) {
                 if (confirm('确定删除席位吗？')) {
-                    axios.delete(url + 'org/partner/dept/' + partnerCode + "/" + deptCode).then(function (response) {
+                    axios.delete('/org/partner/dept/' + partnerCode + "/" + deptCode).then(function (response) {
                         if (response.status === 200) {
                             alert('操作成功', function () {
                                 this.reload();

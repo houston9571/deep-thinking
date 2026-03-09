@@ -56,7 +56,7 @@
 <script>
     var fcode = "all";
     var h = location.href;
-    console.log(fcode);
+    console.log(h);
     if (h.indexOf("?") > 0) {
         fcode = h.substr(h.indexOf("?") + 1);
         console.log(fcode);
@@ -71,7 +71,7 @@
 
     // 异步请求函数必须要写在外面，然后在vue里面调用
     function asyncLoadDate() {
-        axios.get(url + 'concept/list')
+        axios.get('/concept/list')
             .then(function (response) {
                 if (response.status === 200) {
                     vm.fillData(response);
