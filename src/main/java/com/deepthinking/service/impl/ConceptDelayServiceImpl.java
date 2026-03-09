@@ -5,6 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyConceptApi;
+import com.deepthinking.common.constant.MarketType;
 import com.deepthinking.common.utils.DateUtils;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.ConceptDelay;
@@ -100,7 +101,7 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
         } while (pageCount > 0);
         log.info(">>>>>syncConceptTradeList finished total:{} list:{} ", total, list.size());
 
-        if(top <= 50) {
+        if (top <= 50) {
             int count = 0;
             for (ConceptDelay delay : list) {
                 count += syncConceptStocks(delay.getConceptCode(), delay.getConceptName(), delay.getTradeDate());
@@ -124,16 +125,21 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
             log.info(">>>>>syncConceptStocks   data:{} total:{}", array.size(), data.getInteger(LABEL_TOTAL));
             for (int i = 0; i < array.size(); i++) {
                 StockPool pool = JSONObject.parseObject(array.getString(i), StockPool.class);
-                pool.setTradeDate(tradeDate);
-                pool.setConceptCode(conceptCode);
-                pool.setConceptName(conceptName);
-                // todo 筛选股票进入股票池
+                if (MarketType.contains(pool.getStockCode(), pool.getStockName())) {
+                    pool.setTradeDate(tradeDate);
+                    pool.setConceptCode(conceptCode);
+                    pool.setConceptName(conceptName);
+                    // todo 筛选股票进入股票池
 
-                stockPoolService.saveOrUpdate(pool, new String[]{"stock_code", "trade_date", "concept_code"});
-                count++;
+                    stockPoolService.saveOrUpdate(pool, new String[]{"stock_code", "trade_date", "concept_code"});
+                    count++;
+                }
             }
-        } catch (Exception e) {
-            log.error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
+        } catch (
+                Exception e) {
+            log.
+
+                    error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
         }
         return count;
     }

@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.deepthinking.client.EastMoneyStockApi;
+import com.deepthinking.common.constant.MarketType;
 import com.deepthinking.common.utils.StringUtil;
 import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
@@ -57,9 +58,11 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
         List<StockInfo> updates = findAll();
         log.error(">>>>>syncStockInfoAll start. 更新：{}", updates.size());
         for (StockInfo daily : updates) {
-            Result<StockInfo> result = syncStockInfo(daily.getStockCode());
-            if (result.isSuccess()) {
-                syncStockConceptList(daily.getStockCode());
+            if (MarketType.contains(daily.getStockCode(), daily.getStockName())) {
+                Result<StockInfo> result = syncStockInfo(daily.getStockCode());
+                if (result.isSuccess()) {
+                    syncStockConceptList(daily.getStockCode());
+                }
             }
         }
         log.error(">>>>>syncStockInfoAll end. 更新：{}", updates.size());
@@ -67,9 +70,11 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
         List<StockInfo> inserts = stockInfoMapper.queryStockInfoNotIn();
         log.error(">>>>>syncStockInfoAll start. 新增：{}", inserts.size());
         for (StockInfo daily : inserts) {
-            Result<StockInfo> result = syncStockInfo(daily.getStockCode());
-            if (result.isSuccess()) {
-                syncStockConceptList(daily.getStockCode());
+            if (MarketType.contains(daily.getStockCode(), daily.getStockName())) {
+                Result<StockInfo> result = syncStockInfo(daily.getStockCode());
+                if (result.isSuccess()) {
+                    syncStockConceptList(daily.getStockCode());
+                }
             }
         }
         log.error(">>>>>syncStockInfoAll end. 新增：{}", inserts.size());
@@ -82,19 +87,16 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
      */
     public Result<StockInfo> syncStockInfo(String stockCode) {
         try {
-            if (exist(new LambdaQueryWrapper<StockInfo>().eq(StockInfo::getStockCode, stockCode).gt(StockInfo::getUpdateTime, LocalDateTime.of(LocalDate.now(), LocalTime.MIN)))) {
-                return Result.fail(DATA_UPDATED, "getStockInfo", stockCode);
-            }
+//            if (exist(new LambdaQueryWrapper<StockInfo>().eq(StockInfo::getStockCode, stockCode).gt(StockInfo::getUpdateTime, LocalDateTime.of(LocalDate.now(), LocalTime.MIN)))) {
+//                return Result.fail(DATA_UPDATED, "getStockInfo", stockCode);
+//            }
 
-            String tpl = stockCode.length() == 6 ? "S01-overview.json" : "S01-overview-hk.json";
-            if (StringUtil.equals(getMarket(stockCode), MARKET_BJ)) {
-                return Result.fail(REQUEST_UNSUPPORTED);
-            }
+            String tpl =   "S01-overview.json" ;
             List<Map<String, String>[]> factors = spiderTemplateParser.parserAsMap(tpl, stockCodeMap(stockCode));
             if (CollectionUtils.isEmpty(factors)) {
                 return Result.fail(NOT_GET_PAGE_ERROR, "tlp:" + tpl);
             }
-            Map<String, String>[] maps = factors.get(0);
+            Map<String, String>[] maps = factors.getFirst();
             if (ArrayUtils.isEmpty(maps)) {
                 return Result.fail(NOT_GET_PAGE_ERROR, "factors:" + JSONObject.toJSONString(factors));
             }

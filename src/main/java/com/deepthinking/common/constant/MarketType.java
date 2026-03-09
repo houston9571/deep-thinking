@@ -92,14 +92,6 @@ public class MarketType {
     }
 
     public static String getMarketCode(String stockCode) {
-//        if (stockCode.startsWith("BK")) {
-//            return "90";
-//        }
-        StockExchange e = markets.get(stockCode.substring(0, 3));
-        if (e == null) {
-            log.error("getMarketCode is null. {}", stockCode);
-            return stockCode.startsWith("60") ? MARKET_CODE_SH : MARKET_CODE_SZ;
-        }
         return markets.get(stockCode.substring(0, 3)).getMarketCode();
     }
 

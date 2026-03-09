@@ -31,7 +31,7 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
      * 根据股票池更新个股分时数据 1分钟
      */
     public Result<Integer> syncStockMinuteDateFromPool() {
-        List<StockPool> stocks = queryList(StockPool.builder().tradeDate(LocalDate.now()).build());
+        List<StockPool> stocks = stockPoolMapper.queryLastDay();
 
         stocks.forEach(stock -> {
             String stockCode = stock.getStockCode();
