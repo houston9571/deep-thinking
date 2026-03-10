@@ -4,14 +4,15 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.deepthinking.common.constant.Constants;
 import com.deepthinking.common.constant.MarketType;
+import com.deepthinking.common.utils.RedisUtils;
 import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
+import com.deepthinking.mysql.entity.StockInfo;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.entity.StockPool;
+import com.deepthinking.mysql.entity.StockTechDaily;
 import com.deepthinking.mysql.mapper.StockPoolMapper;
-import com.deepthinking.service.StockKlineMinuteService;
-import com.deepthinking.service.StockPoolService;
-import com.deepthinking.service.StockTechMinuteService;
+import com.deepthinking.service.*;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cn.hutool.core.text.StrPool.COMMA;
+import static com.deepthinking.service.impl.StockKlineDailyServiceImpl.KLINE_LIST_KEY;
 
 @Slf4j
 @Service
@@ -34,6 +38,12 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
 
     private final StockTechMinuteService stockTechMinuteService;
 
+    private final StockKlineDailyService stockKlineDailyService;
+
+    private final StockTechDailyService stockTechDailyService;
+
+    private final StockInfoService stockInfoService;
+
     public List<StockPool> queryStockPool() {
         List<StockPool> stocks = stockPoolMapper.queryLastDay();
 
@@ -44,7 +54,7 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
     /**
      * 根据股票池更新个股分时数据 1分钟
      */
-    public Result<Integer> syncStockMinuteDateFromPool() {
+    public Result<Integer> syncStockCalcKlineIndicators() {
         List<StockPool> stocks = stockPoolMapper.queryLastDay();
         stocks.forEach(stock -> {
             String stockCode = stock.getStockCode();
@@ -57,36 +67,43 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
     }
 
     /**
-     * 精选股票加入股票池
-     * 从缓存中获取klineDaily，如果没有生成，则不参加策略精选
+     * 精选股票加入股票池，同时更新日线数据和日线指标
      */
-    public void addStockPoolWithConcept(List<StockPool> list) {
-        List<StockPool> pools = Lists.newArrayList();
-        list.forEach(stock -> {
-            StockKlineDaily daily = StockKlineDaily.builder().stockCode(stock.getStockCode()).build();
-            if (isPassedStrategy(daily)) {
-                pools.add(stock);
+    public void addStockPools(List<StockPool> pools) {
+        Map<String, StockPool> map = pools.stream().collect(Collectors.toMap(StockPool::getStockCode, s -> s));
+        List<StockKlineDaily> stockKlineDailyList = stockKlineDailyService.syncStockKlineDailyList();       // 缓存29分钟失效后，全量同步股票日线实时行情
+        List<StockPool> stockPools = Lists.newArrayList();
+        stockKlineDailyList.forEach(stock -> {
+            if (isPassedStrategy(stock)) {           // 匹配到top25概念板块加入股票池
+                if(map.containsKey(stock.getStockCode())){
+                    stockPools.add(map.get(stock.getStockCode()));
+                }else {                              // 策略精选后加入股票池
+                    StockPool p = new StockPool();
+                    BeanUtil.copyProperties(stock, p, true);
+                    stockPools.add(p);
+                }
             }
         });
-        saveOrUpdateBatch(pools, new String[]{"stock_code", "trade_date"});
+        saveOrUpdateBatch(stockPools, new String[]{"stock_code", "trade_date"});
     }
 
-    public void addStockPoolWithKlineDaily(List<StockKlineDaily> list) {
-        List<StockPool> pools = Lists.newArrayList();
-        list.forEach(daily -> {
-            if (isPassedStrategy(daily)) {
-                StockPool stock = new StockPool();
-                BeanUtil.copyProperties(daily, stock, true);
-                pools.add(stock);
-            }
-        });
-        saveOrUpdateBatch(pools, new String[]{"stock_code", "trade_date"});
-    }
+    // todo 加入计算日线指标  筛选股票进入股票池
 
     /**
-     * 交易日09:42第一次同步klineDaily后，使用当天Kline数据判断
+     *
      */
     boolean isPassedStrategy(StockKlineDaily daily) {
+        String stockCode = daily.getStockCode();
+
+        StockInfo stockInfo = stockInfoService.getStockInfo(stockCode);
+        // 基本面过滤
+
+
+        // 技术指标过滤
+        StockTechDaily techDaily = stockTechDailyService.getAndCalcStockTechDaily(stockCode);
+        if (ObjectUtil.isEmpty(techDaily)) {
+            return false;
+        }
 
         return true;
     }

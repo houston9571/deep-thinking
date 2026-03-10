@@ -4,6 +4,7 @@ import com.deepthinking.common.thread.Threads;
 import com.deepthinking.common.utils.DateUtils;
 import com.deepthinking.common.utils.OSUtils;
 import com.deepthinking.ext.base.Result;
+import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static com.deepthinking.common.constant.MarketType.*;
 
@@ -45,12 +49,12 @@ public class SyncTask {
     /**************************** 股票行情 ***********************************/
 
     @Scheduled(cron = "0 0/1 9-12,13-15 ? * 1-5")
-    void syncStockKlineMinutePools() {
-        if (isTradeTime()) {
+    void syncStockCalcKlineIndicators() {
+        if (isTradeTime() && LocalTime.now().isAfter(MORNING_0945)) {                   // 09:45开始同步，k线指标才能满足数量15
             log.info(" --> 同步股票K线行情及指标计算【stock_kline_minute】开始 ");
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            Result<Integer> result = stockPoolService.syncStockMinuteDateFromPool();
+            Result<Integer> result = stockPoolService.syncStockCalcKlineIndicators();
             stopWatch.stop();
             log.info(" --> 同步股票K线行情及指标计算【stock_kline_minute】结束 {} 耗时：{}", result, DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
         }
@@ -58,7 +62,7 @@ public class SyncTask {
 
     // → 触发时间：09:42, 10:12, 10:42, 11:12, 11:42
     // → 触发时间：13:12, 13:42, 14:12, 14:42, 15:12
-    @Scheduled(cron = "0 42/30  9-11 ? * 1-5 ")
+  /*  @Scheduled(cron = "0 42/30  9-11 ? * 1-5 ")
     @Scheduled(cron = "0 12/30 13-15 ? * 1-5 ")
     public void syncStockKlineDailyList() {
         if (isTradeDate()) {
@@ -66,11 +70,12 @@ public class SyncTask {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始");
-            stockKlineDailyService.syncStockKlineDailyList();
+            List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList();  // 全量同步股票日线实时行情
+            stockPoolService.addStockPoolWithKlineDaily(list);                              // 精选股票加入股票池并计算日线指标
             stopWatch.stop();
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束 耗时：{}", DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
         }
-    }
+    }*/
 
     // 所有股票基本信息及所属概念，不包含920 ST
     @Scheduled(cron = "0 0 5 ? * 1-5 ")
@@ -87,7 +92,7 @@ public class SyncTask {
     // 获取概念板块列表，按涨跌幅排序
     @Scheduled(cron = "0 0/5 9-12,13-15 ? * 1-5 ")
     void syncConceptDaily() {
-        if (isTradeTime()) {
+        if (isTradeTime() && LocalTime.now().isAfter(MORNING_0945)) {                       // 09:45开始同步，k线指标才能满足数量15
             Threads.sleep(10_000);
             log.info(" --> 同步概念板块【concept_daily】开始 top25");
             conceptDelayService.syncConceptTradeList(25);

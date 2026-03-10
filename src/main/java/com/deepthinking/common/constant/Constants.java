@@ -64,11 +64,13 @@ public interface Constants {
     String LABEL_TOTAL = "total";
 
 
-    int THREE_MINUTES = 180;
 
-    int THIRTY_SECONDS = 30;
+    int MINS_3 = 3 * 60;
 
-    int THIRTY_MINUTES = 1800;
+    int MINS_29 = 29 * 60;
+
+    int MINS_30 = 30 * 60;
+
 
     String MIXED_CODE = "@&19^";
 

@@ -13,7 +13,43 @@ spring:
     view:
       prefix: /
       suffix: .html
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password:                 # 如果没有密码则留空或删除此行
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8          # 最大连接数
+          max-idle: 8            # 最大空闲连接
+          min-idle: 0            # 最小空闲连接
+          time-between-eviction-runs: 100ms # 空闲连接回收间隔
 
+jetcache:
+  statIntervalMinutes: 15         # 统计信息输出间隔，0表示不输出
+  areaInCacheName: false          # 是否将area名称加入缓存key前缀
+  local:
+    default:
+      type: caffeine              # 本地缓存类型：caffeine/linkedhashmap
+      limit: 100                  # 本地缓存最大元素数量
+      keyConvertor: fastjson2     # key转换器，建议使用fastjson2
+      expireAfterWriteInMillis: 180000    # 本地缓存默认过期时间（毫秒）
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson2
+      valueEncoder: kryo5                 # 远程缓存值序列化方式：java/kryo/kryo5  kryo5 性能优于 JDK 序列化
+      valueDecoder: kryo5
+      expireAfterWriteInMillis: 3600000   # 1小时后远程缓存失效，单位毫秒
+      host: ${spring.data.redis.host}     # Redis连接配置（继承spring.redis.*，也可单独覆盖）
+      port: ${spring.data.redis.port}
+      password: ${spring.data.redis.password}
+      database: ${spring.data.redis.database}
+      poolConfig:
+        minIdle: 1
+        maxIdle: 20
+        maxTotal: 50
 
 #====== config dev =======#
 ---

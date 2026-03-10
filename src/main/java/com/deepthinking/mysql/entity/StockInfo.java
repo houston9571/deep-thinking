@@ -119,7 +119,5 @@ public class StockInfo extends BaseEntity {
      */
     private String mjzjje;
 
-    private int sort;
-
 
 }

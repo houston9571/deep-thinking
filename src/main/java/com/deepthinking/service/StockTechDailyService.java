@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface StockTechDailyService extends MybatisBaseService<StockTechDaily> {
 
-    void calculateDailyIndicatorAndSave(List<StockKlineDaily> barList);
+    StockTechDaily getAndCalcStockTechDaily(String stockCode);
 
 
 }

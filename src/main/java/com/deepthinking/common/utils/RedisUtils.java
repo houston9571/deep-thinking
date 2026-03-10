@@ -11,7 +11,7 @@ import org.springframework.data.redis.core.types.Expiration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.deepthinking.common.constant.Constants.THREE_MINUTES;
+import static com.deepthinking.common.constant.Constants.MINS_3;
 
 @Slf4j
 public class RedisUtils {
@@ -146,7 +146,7 @@ public class RedisUtils {
      * @return true成功 false失败
      */
     public static boolean tryLock(String key, long expire) {
-        final long ex = expire <= 0 ? THREE_MINUTES : expire;
+        final long ex = expire <= 0 ? MINS_3 : expire;
         final byte[] k = key.getBytes();
         return Boolean.TRUE.equals(redisTemplate.execute((RedisCallback<Boolean>) redisConnection ->
                 Boolean.FALSE.equals(redisConnection.exists(k)) && Boolean.TRUE.equals(redisConnection.set(k, k, Expiration.seconds(ex), RedisStringCommands.SetOption.ifAbsent()))));

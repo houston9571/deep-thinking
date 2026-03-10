@@ -11,9 +11,8 @@ public interface StockPoolService extends MybatisBaseService<StockPool> {
 
     List<StockPool> queryStockPool();
 
-    Result<Integer> syncStockMinuteDateFromPool();
+    Result<Integer> syncStockCalcKlineIndicators();
 
-    void addStockPoolWithConcept(List<StockPool> list);
+    void addStockPools(List<StockPool> list);
 
-    void addStockPoolWithKlineDaily(List<StockKlineDaily> list);
 }

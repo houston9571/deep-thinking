@@ -4,10 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.deepthinking.client.EastMoneyStockApi;
 import com.deepthinking.common.constant.MarketType;
-import com.deepthinking.common.utils.StringUtil;
+import com.deepthinking.common.utils.RedisUtils;
 import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.ConceptInfo;
@@ -26,14 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static com.deepthinking.common.constant.Constants.LABEL_DATA;
-import static com.deepthinking.common.constant.Constants.LABEL_RESULT;
+import static com.deepthinking.common.constant.Constants.*;
 import static com.deepthinking.common.constant.MarketType.*;
 import static com.deepthinking.common.enums.ErrorCode.*;
 
@@ -41,6 +39,8 @@ import static com.deepthinking.common.enums.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper, StockInfo> implements StockInfoService {
+
+    private static final String CACHE_KEY = "StockInfo:";
 
     private final StockInfoMapper stockInfoMapper;
 
@@ -53,6 +53,14 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
 
     @Autowired
     SpriderTemplateParser spiderTemplateParser;
+
+
+
+    @Cached(name = CACHE_KEY, key = "#stockCode", expire = 7, timeUnit = TimeUnit.DAYS)
+    public StockInfo getStockInfo(String stockCode) {
+        return findOne(StockInfo.builder().stockCode(stockCode).build());
+    }
+
 
     public Result<Integer> syncStockInfoAll() {
         List<StockInfo> updates = findAll();
@@ -87,11 +95,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
      */
     public Result<StockInfo> syncStockInfo(String stockCode) {
         try {
-//            if (exist(new LambdaQueryWrapper<StockInfo>().eq(StockInfo::getStockCode, stockCode).gt(StockInfo::getUpdateTime, LocalDateTime.of(LocalDate.now(), LocalTime.MIN)))) {
-//                return Result.fail(DATA_UPDATED, "getStockInfo", stockCode);
-//            }
-
-            String tpl =   "S01-overview.json" ;
+            String tpl = "S01-overview.json";
             List<Map<String, String>[]> factors = spiderTemplateParser.parserAsMap(tpl, stockCodeMap(stockCode));
             if (CollectionUtils.isEmpty(factors)) {
                 return Result.fail(NOT_GET_PAGE_ERROR, "tlp:" + tpl);
@@ -103,6 +107,8 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
 
             StockInfo stockInfo = BeanUtil.fillBeanWithMap(maps[0], new StockInfo(), true);
             saveOrUpdate(stockInfo, new String[]{"stock_code"});
+            RedisUtils.set(CACHE_KEY + stockInfo.getStockCode(), stockInfo);
+
             return Result.success(stockInfo);
         } catch (Exception e) {
             log.error(">>>>>getStockInfo error. {}", e.getMessage());
@@ -113,16 +119,18 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
     /**
      * 个股所属概念
      */
-    public Result<Void> syncStockConceptList(String stockCode) {
+    private void syncStockConceptList(String stockCode) {
         try {
             JSONObject json = eastMoneyStockApi.syncStockConcepts(stockCode, getMarket(stockCode));
             JSONObject result = json.getJSONObject(LABEL_RESULT);
             if (ObjectUtil.isEmpty(result) || !result.containsKey(LABEL_DATA)) {
-                return Result.fail(NOT_GET_PAGE_ERROR, "getStockConceptList result is null");
+                Result.fail(NOT_GET_PAGE_ERROR, "getStockConceptList result is null");
+                return;
             }
             JSONArray data = result.getJSONArray(LABEL_DATA);
             if (CollectionUtils.isEmpty(data)) {
-                return Result.fail(NOT_GET_PAGE_ERROR, "getStockConceptList data is null");
+                Result.fail(NOT_GET_PAGE_ERROR, "getStockConceptList data is null");
+                return;
             }
             JSONObject d;
             List<ConceptStock> conceptStockList = Lists.newArrayList();
@@ -139,9 +147,10 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
             conceptStockService.saveBatch(conceptStockList);
         } catch (Exception e) {
             log.error(">>>>>getStockConceptList error. {}", e.getMessage());
-            return Result.fail(e.getMessage());
+            Result.fail(e.getMessage());
+            return;
         }
-        return Result.success();
+        Result.success();
     }
 
 

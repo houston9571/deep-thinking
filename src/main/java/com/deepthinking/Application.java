@@ -1,5 +1,7 @@
 package com.deepthinking;
 
+import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
+import com.alicp.jetcache.anno.config.EnableMethodCache;
 import com.dtflys.forest.springboot.annotation.ForestScan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +21,7 @@ import static com.deepthinking.common.constant.Constants.ZONE_ID;
 @EnableScheduling
 @SpringBootApplication
 @ForestScan(basePackages = {"com.deepthinking.client"})
+@EnableMethodCache(basePackages = "com.deepthinking.service") // 指定需要进行缓存增强的包
 public class Application {
 
     public static void main(String[] args) {

@@ -48,6 +48,7 @@ public class MarketType {
         put("2026-10-07", "国庆节");
     }};
 
+    public static final LocalTime MORNING_0945 = DateUtils.parseLocalTime("09:45:00", DateFormatEnum.TIME);
     public static final LocalTime MORNING_OPEN = DateUtils.parseLocalTime("09:30:00", DateFormatEnum.TIME);
     public static final LocalTime MORNING_CLOSE = DateUtils.parseLocalTime("11:30:00", DateFormatEnum.TIME);
     public static final LocalTime AFTERNOON_OPEN = DateUtils.parseLocalTime("13:00:00", DateFormatEnum.TIME);

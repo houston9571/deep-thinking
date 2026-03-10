@@ -102,18 +102,19 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
         log.info(">>>>>syncConceptTradeList finished total:{} list:{} ", total, list.size());
 
         if (top <= 50) {
-            int count = 0;
+            List<StockPool> pools = Lists.newArrayList();
             for (ConceptDelay delay : list) {
-                count += syncConceptStocks(delay.getConceptCode(), delay.getConceptName(), delay.getTradeDate());
+                pools.addAll(syncConceptStocks(delay.getConceptCode(), delay.getConceptName(), delay.getTradeDate()));
             }
-            log.info(">>>>>syncConceptStocks finished stock_count:{} ", count);
+            stockPoolService.addStockPools(pools);
+            log.info(">>>>>syncConceptStocks finished stock_count:{} ", pools.size());
         }
     }
 
     /**
      * 概念板块下的股票
      */
-    private int syncConceptStocks(String conceptCode, String conceptName, LocalDate tradeDate) {
+    private List<StockPool> syncConceptStocks(String conceptCode, String conceptName, LocalDate tradeDate) {
         List<StockPool> list = Lists.newArrayList();
         try {
             JSONObject json = eastMoneyConceptApi.syncConceptStocks(conceptCode, System.currentTimeMillis());
@@ -130,11 +131,10 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
                 stock.setConceptName(conceptName);
                 list.add(stock);
             }
-            stockPoolService.addStockPoolWithConcept(list);
         } catch (Exception e) {
             log.error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
         }
-        return list.size();
+        return list;
     }
 
     /**

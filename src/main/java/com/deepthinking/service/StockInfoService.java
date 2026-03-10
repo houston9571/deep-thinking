@@ -6,11 +6,12 @@ import com.deepthinking.mysql.entity.StockInfo;
 
 public interface StockInfoService extends MybatisBaseService<StockInfo> {
 
+    StockInfo getStockInfo(String stockCode);
+
     Result<Integer> syncStockInfoAll() ;
 
     Result<StockInfo> syncStockInfo(String stockCode);
 
-    Result<Void> syncStockConceptList(String stockCode);
 
 
 }

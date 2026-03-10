@@ -1,5 +1,6 @@
 package com.deepthinking.service.impl;
 
+import com.alicp.jetcache.anno.Cached;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.entity.StockTechDaily;
@@ -11,9 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
-import static com.deepthinking.common.constant.Constants.ROUND_MODE;
+import static com.deepthinking.common.constant.Constants.*;
 import static com.deepthinking.service.impl.StockIndicatorDailyCalculator.*;
 
 @Slf4j
@@ -21,10 +23,26 @@ import static com.deepthinking.service.impl.StockIndicatorDailyCalculator.*;
 @RequiredArgsConstructor
 public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechDailyMapper, StockTechDaily> implements StockTechDailyService {
 
+    private static final String CACHE_KEY = "StockTechDaily:";
+
     private final StockTechDailyMapper stockTechDailyMapper;
 
     private final StockKlineDailyService stockKlineDailyService;
 
+
+
+    @Cached(name = CACHE_KEY, key = "#stockCode", expire = FORTY_MINUTES)
+    public StockTechDaily getAndCalcStockTechDaily(String stockCode) {
+        List<StockKlineDaily> list = stockKlineDailyService.getStockKlineDailyLimit(stockCode, 15);
+        // 至少10天数据才能计算全量指标
+        if (list.size() < 15) {
+            log.warn("日线数据不足不计算，必须满足15条");
+            return null;
+        }
+        StockTechDaily tech = calculateDailyIndicatorAndSave(list);
+        saveOrUpdate(tech, new String[]{"stock_code", "trade_date"});
+        return tech;
+    }
 
     /**
      * 全流程超短线量化体系 数据读取→指标计算→背离判断→共振筛选→结果入库
@@ -56,12 +74,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
      * <p>
      * 价格跌破5日线=强制止损
      */
-    public void calculateDailyIndicatorAndSave(List<StockKlineDaily> barList) {
-        // 至少10天数据才能计算全量指标
-        if (barList.size() < 10) {
-            log.warn("日线数据不足不计算，必须满足10条");
-            return;
-        }
+    private StockTechDaily calculateDailyIndicatorAndSave(List<StockKlineDaily> barList) {
         // 读取日线数据（按时间升序）
         int last = barList.size() - 1;
 
@@ -179,10 +192,8 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         tech.setResonanceSignal((Integer) resonance[0]);
         tech.setResonanceScore((BigDecimal) resonance[1]);
 
-        // 4. 批量写入数据库
-        saveOrUpdate(tech, new String[]{"stock_code", "trade_date"});
-        log.info("股票" + tech.getStockCode() + tech.getStockName() + "指标计算完成");
-
+        log.info(">>>>>股票日线指标计算完成 【{}】{}",  tech.getStockCode(), tech.getStockName() );
+        return tech;
 
         // 7. 策略回测
 //        BigDecimal[] backTestResult = backTestResonanceSignal(stockCode, barList, techList);
