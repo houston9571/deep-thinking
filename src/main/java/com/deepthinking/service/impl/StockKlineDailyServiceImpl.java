@@ -40,12 +40,12 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
 
 
 
-    @Cached(name = CACHE_KEY, key = "#stockCode", expire = FORTY_MINUTES)
+    @Cached(name = CACHE_KEY, key = "#stockCode", expire = MINS_30)
     public StockKlineDaily getStockKlineDaily(String stockCode) {
         return findOne(StockKlineDaily.builder().stockCode(stockCode).tradeDate(LocalDate.now()).build());
     }
 
-    @Cached(name = CACHE_KEY, key = "#stockCode+'_'+#limit", expire = FORTY_MINUTES)
+    @Cached(name = CACHE_KEY, key = "#stockCode+'_'+#limit", expire = MINS_30)
     public List<StockKlineDaily> getStockKlineDailyLimit(String stockCode, int limit) {
         return stockKlineDailyMapper.getStockKlineDailyLimit(stockCode, limit);
     }
