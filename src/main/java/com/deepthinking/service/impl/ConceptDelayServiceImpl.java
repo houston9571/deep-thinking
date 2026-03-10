@@ -114,7 +114,7 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
      * 概念板块下的股票
      */
     private int syncConceptStocks(String conceptCode, String conceptName, LocalDate tradeDate) {
-        int count = 0;
+        List<StockPool> list = Lists.newArrayList();
         try {
             JSONObject json = eastMoneyConceptApi.syncConceptStocks(conceptCode, System.currentTimeMillis());
             JSONObject data = json.getJSONObject(LABEL_DATA);
@@ -124,24 +124,17 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
             JSONArray array = data.getJSONArray("diff");
             log.info(">>>>>syncConceptStocks   data:{} total:{}", array.size(), data.getInteger(LABEL_TOTAL));
             for (int i = 0; i < array.size(); i++) {
-                StockPool pool = JSONObject.parseObject(array.getString(i), StockPool.class);
-                if (MarketType.contains(pool.getStockCode(), pool.getStockName())) {
-                    pool.setTradeDate(tradeDate);
-                    pool.setConceptCode(conceptCode);
-                    pool.setConceptName(conceptName);
-                    // todo 筛选股票进入股票池
-
-                    stockPoolService.saveOrUpdate(pool, new String[]{"stock_code", "trade_date", "concept_code"});
-                    count++;
-                }
+                StockPool stock = JSONObject.parseObject(array.getString(i), StockPool.class);
+                stock.setTradeDate(tradeDate);
+                stock.setConceptCode(conceptCode);
+                stock.setConceptName(conceptName);
+                list.add(stock);
             }
-        } catch (
-                Exception e) {
-            log.
-
-                    error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
+            stockPoolService.addStockPoolWithConcept(list);
+        } catch (Exception e) {
+            log.error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
         }
-        return count;
+        return list.size();
     }
 
     /**

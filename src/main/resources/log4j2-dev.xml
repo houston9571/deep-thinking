@@ -36,7 +36,7 @@
         <logger name="org.springframework.web" level="info"/>
         <logger name="org.apache.ibatis" level="debug"/>
         <logger name="com.deepthinking" level="debug" includeLocation="true" additivity="false">
-            <appender-ref ref="FileLog"/>
+<!--            <appender-ref ref="FileLog"/>-->
             <appender-ref ref="Console"/>
         </logger>
     </Loggers>

@@ -10,6 +10,7 @@ import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.mapper.StockKlineDailyMapper;
 import com.deepthinking.service.StockKlineDailyService;
+import com.deepthinking.service.StockPoolService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
     private final StockKlineDailyMapper stockKlineDailyMapper;
 
     private final EastMoneyStockApi eastMoneyStockApi;
+
+    private final StockPoolService stockPoolService;
 
 
     /**
@@ -77,8 +80,8 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
         try {
             log.info(">>>>>syncStockTradeList read finished total:{} list:{} ", total, list.size());
             if (!CollectionUtils.isEmpty(list)) {
-                delete(new LambdaQueryWrapper<StockKlineDaily>().eq(StockKlineDaily::getTradeDate, list.getFirst().getTradeDate()));
                 saveBatch(list);
+                stockPoolService.addStockPoolWithKlineDaily(list);
             }
         } catch (Exception e) {
             log.error(">>>>>syncStockTradeList saveBatch error. {}", e.getMessage());

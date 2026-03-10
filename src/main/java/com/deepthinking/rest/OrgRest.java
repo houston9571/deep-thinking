@@ -28,32 +28,32 @@ public class OrgRest {
     /**
      * 游资列表
      */
-    @GetMapping("partner")
+    @GetMapping("partnerList")
     public Result<List<OrgPartner>> queryDragonPartnerList() {
         return orgPartnerService.queryOrgPartnerList();
-    }
-
-    /**
-     * 删除游资的席位
-     */
-    @DeleteMapping("partner/dept/{partnerCode}/{deptCode}")
-    public Result<Void> deletePartnerDept(@PathVariable String partnerCode, @PathVariable String deptCode) {
-        return orgPartnerService.deletePartnerDept(partnerCode, deptCode);
     }
 
 
     /**
      * 游资未匹配的营业部列表
      */
-    @GetMapping("partner/dept/nomatch/{partnerCode}")
+    @GetMapping("nomatchDeptList/{partnerCode}")
     public Result<List<OrgDept>> queryNomatchPartnerDeptList(@PathVariable String partnerCode) {
         return orgDeptService.queryNomatchPartnerDeptList(partnerCode);
     }
 
     /**
+     * 删除游资的席位
+     */
+    @DeleteMapping("dept/{partnerCode}/{deptCode}")
+    public Result<Void> deletePartnerDept(@PathVariable String partnerCode, @PathVariable String deptCode) {
+        return orgPartnerService.deletePartnerDept(partnerCode, deptCode);
+    }
+
+    /**
      * 增加游资的席位
      */
-    @PutMapping("partner/dept/{partnerCode}/{deptCode}")
+    @PutMapping("dept/{partnerCode}/{deptCode}")
     public Result<Void> addPartnerDept(@PathVariable String partnerCode, @PathVariable String deptCode) {
         return orgPartnerService.addPartnerDept(partnerCode, deptCode);
     }

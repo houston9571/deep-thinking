@@ -2,31 +2,29 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="../css/theme-default-easytable.css"/>
-    <script src="../js/config.js"></script>
-    <script src="../js/Sortable.js"></script>
-    <script src="../js/vue.min.js"></script>
-    <script src="../js/axios.min.js"></script>
-<!--    <script src="https://unpkg.com/vue/dist/vue.js"></script>-->
-<!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+    <link rel="stylesheet" href="../../css/theme-default-easytable.css"/>
+    <script src="/js/common.js"></script>
+    <script src="/js/Sortable.js"></script>
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/axios.min.js"></script>
+    <!--    <script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+    <!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
 </head>
 <body>
 <div id="app" style="font-size: 12px;">
     <div class="ve-table">
         <div class="ve-table-container ve-table-border-around" id="vDiv" style="max-height: 864px; ">
-            <table class="ve-table-content ve-table-border-x ve-table-border-y" id="vTable" style="width: 2000px;">
+            <table class="ve-table-content ve-table-border-x ve-table-border-y" id="vTable">
                 <thead class="ve-table-fixed-header ve-table-header">
                 <tr class="ve-table-header-tr">
                     <th class="ve-table-fixed-left" style="width: 15px; left: 0px;background-color: #fafafa;"></th>
-                    <th class="ve-table-header-th ve-table-fixed-left" style="width: 90px; left: 15px;">股票</th>
-                    <th class="ve-table-header-th" style="width: 90px;"><a id="sshy" @click="doSort">行业</a></th>
-                    <th class="ve-table-header-th" style="width: 80px;"><a id="syld" @click="doSort"> PE(动) </a><b class="hxsjccsyl" :title="syld_title"/></th>
-                    <th class="ve-table-header-th" style="width: 80px;"><a id="sjl" @click="doSort"> 市净率 </a><b class="hxsjccsyl" :title="sjl_title"/></th>
-                    <th class="ve-table-header-th" style="width: 80px;"><a id="jzcsyl" @click="doSort"> ROE </a><b class="hxsjccsyl" :title="jzcsyl_title"/></th>
-                    <th class="ve-table-header-th" style="width: 70px;"><a id="fzl" @click="doSort"> 负债率 </a></th>
-                    <th class="ve-table-header-th" style="width: 100px;">总市值</th>
-                    <th class="ve-table-header-th" style="width: 100px;">流通市值</th>
-                    <th class="ve-table-header-th" style="width: 100px;">季度收益</th>
+                    <th class="ve-table-header-th ve-table-fixed-left" style="width: 90px; left: 15px;">股票名称</th>
+                    <th class="ve-table-header-th" style="width: 90px;"> <a id="sshy" @click="doSort">基本数据</a> </th>
+                    <th class="ve-table-header-th" style="width: 80px;">龙虎榜(昨天)</th>
+                    <th class="ve-table-header-th" style="width: 80px;">龙虎榜(三天)</th>
+                    <th class="ve-table-header-th" style="width: 100px;">概念板块</th>
+                    <th class="ve-table-header-th" style="width: 100px;">技术指标</th>
+                    <th class="ve-table-header-th" style="width: 100px;">市场行情</th>
                 </tr>
                 </thead>
                 <tbody id="sort" class="ve-table-body ve-table-stripe ve-table-row-hover ve-table-row-highlight">
@@ -36,19 +34,17 @@
                         <a href="#" class="em-totop" @click="moveTop(col.stockCode)"><b class="em-icon em-ftop em-pro-toTop"></b></a>
                     </td>
                     <td class="ve-table-body-td ve-table-fixed-left" style="text-align: left;left: 15px;" :title="col.info">
-                        <a :href="'http://quote.eastmoney.com/'+col.market+col.stockCode+'.html'" target="_blank" style="color: #00298F">
-                            {{col.stockCode}}<br><span style="color: #888">{{col.market}}.{{col.stockCode}}</span>
-                        </a>
+                        <div class="td-flex" style="justify-content: left;">
+                            <span class="right" style="width: 50%; font-size: 16px;">{{col.stockName}}</span>
+                            <span class="right" style="width: 40%;" :style="judgeColor(col.changePercent)">{{col.changePercent}}</span>
+                        </div>
                     </td>
-                    <td class="ve-table-body-td" style="text-align: center;">{{col.qy}}{{col.sshy}}</td>
 
-                    <td class="ve-table-body-td" style="text-align: right;padding-right: 20px;">{{col.clrq}}</td>
+                    <td class="ve-table-body-td" style="text-align: right;padding-right: 20px;">{{col.changePercent}}</td>
                     <td class="ve-table-body-td" style="text-align: right;padding-right: 20px;">{{col.ssrq}}</td>
-                    <td class="ve-table-body-td" style="text-align: right;padding-right: 20px;">{{col.frdb}}%</td>
+                    <td class="ve-table-body-td" style="text-align: right;padding-right: 20px;">{{col.frdb}}</td>
                     <td class="ve-table-body-td" style="text-align: right;padding-right: 10px;">{{col.dsz}}</td>
                     <td class="ve-table-body-td" style="text-align: right;padding-right: 10px;">{{col.zcdz}}</td>
-<!--                    <td class="ve-table-body-td" style="text-align: right;"><span :style="col.jdsy>0 ? 'color: red' : 'color: green'">{{col.jdsy}}%</span>&nbsp;({{col.jd}})</td>-->
-
                     <td class="ve-table-body-td" style="text-align: right;padding-right: 10px;"></td>
                 </tr>
                 </tbody>
@@ -96,7 +92,7 @@
         el: "#app",
         mounted: function () {
             asyncLoadDate();
-            saveSortData('sort', '/setStockSort');
+            saveSortData('sort', '/stock/setSort');
         },
         methods: {
             fillData: function (response) {
@@ -119,8 +115,8 @@
                 MyDiv.style.height = '680px';
                 MyDiv.style.display = 'block';
                 fade.style.display = 'block';
-                MyDiv.innerHTML = '<object type="text/html" data="fundDetail.html?' + stockCode +
-                    '" width="100%" height="99%"></object>';
+                MyDiv.innerHTML = '<object type="text/html" data=' + stockCode +
+                    '"market/fundDetail.html?" width="100%" height="99%"></object>';
 
             },
             showReportStock: function (stockCode) {
@@ -134,20 +130,20 @@
                 MyDiv.style.height = '680px';
                 MyDiv.style.display = 'block';
                 fade.style.display = 'block';
-                MyDiv.innerHTML = '<object type="text/html" data="reportStock.html?' + code +
-                    '" width="100%" height="100%"></object>';
+                MyDiv.innerHTML = '<object type="text/html" data=' + code +
+                    '"market/reportStock.html?" width="100%" height="100%"></object>';
 
             },
             moveTop: function (id) {
-                moveTop(id, 'sort', '/setStockSort');
+                moveTop(id, 'sort', '/stock/setSort');
             },
             doSort: function (event) {
                 if (this.isDragging) {
                     destroySort();
                     this.isDragging = false;
                 }
-                // console.log(event.target.className)
-                // console.log(event.target.id)
+                console.log(event.target.className)
+                console.log(event.target.id)
                 var className = event.target.className;
                 className = className == '' || className == 'asc' ? 'desc' : 'asc';
                 document.querySelectorAll('.desc').forEach(a => {

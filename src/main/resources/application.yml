@@ -14,10 +14,6 @@ spring:
       prefix: /
       suffix: .html
 
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
 #====== config dev =======#
 ---
@@ -30,8 +26,8 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/quant?rewriteBatchedStatements=true
-    username: quant
-    password: 3cf1c9ee82392c9
+    username: root
+    password: 88888888
     hikari:
       pool-name: DatebookHikariCP
       auto-commit: true
@@ -41,6 +37,10 @@ spring:
       max-lifetime: 1765000
       maximum-pool-size: 50
       minimum-idle: 20
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 logging:
   config: classpath:log4j2-dev.xml
   level:
@@ -87,6 +87,10 @@ spring:
       max-lifetime: 1765000
       maximum-pool-size: 50
       minimum-idle: 20
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 logging:
   config: classpath:log4j2-prd.xml
   level:

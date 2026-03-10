@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="../css/theme-default-easytable.css"/>
-    <link rel="stylesheet" href="../css/my.css"/>
-    <script src="../js/config.js"></script>
-    <script src="../js/Sortable.js"></script>
-    <script src="../js/vue.min.js"></script>
-    <script src="../js/axios.min.js"></script>
+    <link rel="stylesheet" href="../../css/theme-default-easytable.css"/>
+    <link rel="stylesheet" href="../../css/my.css"/>
+    <script src="/js/common.js"></script>
+    <script src="/js/Sortable.js"></script>
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/axios.min.js"></script>
 </head>
 <body>
 <div id="app" style="font-size: 12px;">
@@ -35,14 +35,14 @@
                             <li>
                                 <div class="td-flex" style="justify-content: left;" @click="showStockDetail(c.stockCode)">
                                     <span class="right" style="width: 50%; font-size: 16px;">{{c.stockName}}</span>
-                                    <span class="right" style="width: 40%;" :style="c.changePercent.startsWith('-') ? 'color: green' : 'color: red'">{{c.changePercent}}</span>
+                                    <span class="right" style="width: 40%;" :style="judgeColor(c.changePercent)">{{c.changePercent}}</span>
                                 </div>
                                 <div class="td-flex" style="font-size: 11px;" v-for="(p, index) in c.partners"
                                      :style="(c.partnerName==p.partnerName && p.netBuyAmount.startsWith('-')) ? 'background: linear-gradient(to right, #abf0ab, #f1f1c2); border-radius: 1px; box-shadow: rgba(0.2, 0.2, 0.2, 0.2) 0px 3px 6px;'
                                             : ((c.partnerName==p.partnerName && !p.netBuyAmount.startsWith('-')) ? 'background: linear-gradient(to right, #f2b8b8, #f1f1c2); border-radius: 1px; box-shadow: rgba(0.2, 0.2, 0.2, 0.2) 0px 3px 6px;' : '')">
-                                    <span class="left" style="width: 57px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.partnerName}}</span>
-                                    <span class="right" style="width: 45px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.netBuyAmount}}</span>
-                                    <span class="right" style="width: 42px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.totalNetBuyRatio}}</span>
+                                    <span class="left" style="width: 57px;" :style="judgeColor(p.netBuyAmount)">{{p.partnerName}}</span>
+                                    <span class="right" style="width: 45px;" :style="judgeColor(p.netBuyAmount)">{{p.netBuyAmount}}</span>
+                                    <span class="right" style="width: 42px;" :style="judgeColor(p.netBuyAmount)">{{p.totalNetBuyRatio}}</span>
                                 </div>
 
                                 <!-- <div class="td-flex" style="display: inline-table;">
@@ -79,14 +79,14 @@
                             <li>
                                 <div class="td-flex" style="justify-content: left;" @click="showStockDetail(c.stockCode)">
                                     <span class="right" style="width: 50%; font-size: 16px;">{{c.stockName}}</span>
-                                    <span class="right" style="width: 40%;" :style="c.changePercent.startsWith('-') ? 'color: green' : 'color: red'">{{c.changePercent}}</span>
+                                    <span class="right" style="width: 40%;" :style="judgeColor(c.changePercent)">{{c.changePercent}}</span>
                                 </div>
                                 <div class="td-flex" style="font-size: 11px; " v-for="(p, index) in c.partners"
                                      :style="(c.partnerName==p.partnerName && p.netBuyAmount.startsWith('-')) ? 'background: linear-gradient(to right, #abf0ab, #f1f1c2); border-radius: 1px; box-shadow: rgba(0.2, 0.2, 0.2, 0.2) 0px 3px 6px;'
                                             : ((c.partnerName==p.partnerName && !p.netBuyAmount.startsWith('-')) ? 'background: linear-gradient(to right, #f2b8b8, #f1f1c2); border-radius: 1px; box-shadow: rgba(0.2, 0.2, 0.2, 0.2) 0px 3px 6px;' : '')">
-                                    <span class="left" style="width: 57px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.partnerName}}</span>
-                                    <span class="right" style="width: 45px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.netBuyAmount}}</span>
-                                    <span class="right" style="width: 42px;" :style="p.netBuyAmount.startsWith('-') ? 'color: green' : 'color: red'">{{p.totalNetBuyRatio}}</span>
+                                    <span class="left" style="width: 57px;" :style="judgeColor(p.netBuyAmount)">{{p.partnerName}}</span>
+                                    <span class="right" style="width: 45px;" :style="judgeColor(p.netBuyAmount)">{{p.netBuyAmount}}</span>
+                                    <span class="right" style="width: 42px;" :style="judgeColor(p.netBuyAmount)">{{p.totalNetBuyRatio}}</span>
                                 </div>
 
                                 <!-- <div class="td-flex" style="display: inline-table;">
@@ -109,13 +109,6 @@
 </body>
 
 <script>
-    var fcode = "all";
-    var h = location.href;
-    console.log(fcode);
-    if (h.indexOf("?") > 0) {
-        fcode = h.substr(h.indexOf("?") + 1);
-        console.log(fcode);
-    }
     var fade = document.getElementById('fade');
     var MyDiv = document.getElementById('MyDiv');
     //关闭弹出层
@@ -177,14 +170,14 @@
                 MyDiv.style.height = '680px';
                 MyDiv.style.display = 'block';
                 fade.style.display = 'block';
-                MyDiv.innerHTML = '<object type="text/html" data="dragonDetailPartner.html?partnerCode=' + partnerCode + '" width="100%" height="99%"></object>';
+                MyDiv.innerHTML = '<object type="text/html" data="detailPartner.html?partnerCode=' + partnerCode + '" width="100%" height="99%"></object>';
             },
             showStockDetail: function (stockCode) {
                 MyDiv.style.width = '1500px';
                 MyDiv.style.height = '680px';
                 MyDiv.style.display = 'block';
                 fade.style.display = 'block';
-                MyDiv.innerHTML = '<object type="text/html" data="dragonDetailStock.html?stockCode=' + stockCode + '" width="100%" height="100%"></object>';
+                MyDiv.innerHTML = '<object type="text/html" data="detailStock.html?stockCode=' + stockCode + '" width="100%" height="100%"></object>';
 
             },
         },

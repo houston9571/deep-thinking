@@ -45,7 +45,7 @@ public class ControllerLogAspect {
 
     String[] nonPrint = new String[]{"/live/active/684631413541241654", "/live/submit"};
 
-    @Around("execution(public * com.optimus.rest..*.*(..))")
+    @Around("execution(public * com.deepthinking.rest..*.*(..))")
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();

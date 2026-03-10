@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="../css/theme-default-easytable.css"/>
-    <link rel="stylesheet" href="../css/my.css"/>
-    <script src="../js/config.js"></script>
-    <script src="../js/Sortable.js"></script>
-    <script src="../js/vue.min.js"></script>
-    <script src="../js/axios.min.js"></script>
+    <link rel="stylesheet" href="../../css/theme-default-easytable.css"/>
+    <link rel="stylesheet" href="../../css/my.css"/>
+    <script src="/js/common.js"></script>
+    <script src="/js/Sortable.js"></script>
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/axios.min.js"></script>
 </head>
 <body>
 <div id="app" style="font-size: 12px;">
@@ -37,9 +37,9 @@
                             </a>
                         </div>
                         <div class="td-flex">
-                            <span class="right" style="width: 50%; font-size: 15px;" :style="c.changePercent.startsWith('-') ? 'color: green' : 'color: red'">{{c.changePercent}}</span>
+                            <span class="right" style="width: 50%; font-size: 15px;" :style="judgeColor(c.changePercent)">{{c.changePercent}}</span>
                             <!--<div class="center" ><span style="color: red">{{c.upNum}}</span> | <span style="color: green;">{{c.downNum}}</span></div>-->
-                            <span class="center" style="width: 50%" :style="c.mainNetIn.startsWith('-') ? 'color: green' : 'color: red'">{{c.mainNetIn}}</span>
+                            <span class="center" style="width: 50%" :style="judgeColor(c.mainNetIn)">{{c.mainNetIn}}</span>
                         </div>
                     </td>
                 </tr>
@@ -68,6 +68,7 @@
         MyDiv.style.display = 'none';
         fade.style.display = 'none';
     };
+
 
     // 异步请求函数必须要写在外面，然后在vue里面调用
     function asyncLoadDate() {

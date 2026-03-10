@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface StockPoolMapper extends BaseMapper<StockPool> {
 
-    @Select("SELECT DISTINCT stock_code, stock_name, trade_date FROM stock_pool WHERE trade_date=(SELECT MAX(trade_date) FROM stock_pool)")
+    @Select("SELECT stock_code, stock_name, trade_date, price, change_percent, turnover, amplitude FROM stock_pool WHERE trade_date=(SELECT MAX(trade_date) FROM stock_pool)")
     List<StockPool> queryLastDay();
 
 }
