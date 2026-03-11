@@ -269,17 +269,18 @@ public class MybatisBaseServiceImpl<M extends BaseMapper<P>, P extends BaseEntit
             Class<?> cls = entity.getClass();
             Field[] fields = cls.getDeclaredFields();
             for (Field field : fields) {
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (ObjectUtil.isEmpty(annotation) || !annotation.exist()) {
-                    continue;
-                }
+//                TableField annotation = field.getAnnotation(TableField.class);
+//                if (ObjectUtil.isEmpty(annotation) || !annotation.exist()) {
+//                    continue;
+//                }
                 try {
                     PropertyDescriptor pd = new PropertyDescriptor(field.getName(), cls);
                     Object value = ReflectionUtils.invokeMethod(pd.getReadMethod(), entity);
-                    if (ObjectUtil.isEmpty(value) || StrUtil.isBlank(value.toString())) {
+                    if (ObjectUtil.isEmpty(value) || ObjectUtil.isEmpty(value)) {
                         continue;
                     }
-                    query.eq(StrUtil.isNotBlank(annotation.value()) ? annotation.value() : CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, field.getName()), value);
+                    query.eq(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, field.getName()), value);
+//                    query.eq(StrUtil.isNotBlank(annotation.value()) ? annotation.value() : CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, field.getName()), value);
                 } catch (IntrospectionException e) {
                     log.error("无法解析字符串方法名 {} ", field.getName());
                 }

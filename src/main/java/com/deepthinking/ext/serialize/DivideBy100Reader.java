@@ -16,7 +16,7 @@ public class DivideBy100Reader implements ObjectReader<Double> {
             if (rawValue == null) return null;
             return rawValue.doubleValue() / 100.0;
         } catch (Exception e) {
-            log.error(">>>>>{} 检查Number类型：{}={}", this.getClass().getSimpleName(), fieldName, jsonReader.readString());
+            log.debug(">>>>>{} 检查Number类型：{}={}", this.getClass().getSimpleName(), fieldName, jsonReader.readString());
             return null;
         }
 

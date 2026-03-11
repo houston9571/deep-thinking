@@ -71,6 +71,7 @@ public interface Constants {
 
     int MINS_30 = 30 * 60;
 
+    long YI = 1_0000_0000L;
 
     String MIXED_CODE = "@&19^";
 

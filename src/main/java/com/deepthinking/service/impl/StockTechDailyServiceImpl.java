@@ -31,7 +31,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
 
 
 
-    @Cached(name = CACHE_KEY, key = "#stockCode", expire = FORTY_MINUTES)
+    @Cached(name = CACHE_KEY, key = "#stockCode", expire = MINS_29)
     public StockTechDaily getAndCalcStockTechDaily(String stockCode) {
         List<StockKlineDaily> list = stockKlineDailyService.getStockKlineDailyLimit(stockCode, 15);
         // 至少10天数据才能计算全量指标

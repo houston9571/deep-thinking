@@ -1,5 +1,6 @@
 package com.deepthinking.common.utils;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,12 +49,12 @@ public final class CenterSignUtil {
         if(Objects.isNull(originalSignParam)) {
             return false;
         }
-        return StringUtils.equals(originalSignParam.toString(), getSign(parameter,secKey));
+        return StrUtil.equals(originalSignParam.toString(), getSign(parameter,secKey));
     }
 
     private static String getSign(TreeMap<String, Object> parameter, String secKey) {
         String newSignStr = parameter.entrySet().stream()
-                .filter(item -> Objects.nonNull(item.getValue()) && StringUtils.isNotEmpty(item.getValue().toString()))
+                .filter(item -> Objects.nonNull(item.getValue()) && StrUtil.isNotEmpty(item.getValue().toString()))
                 .map(e -> e.getKey() + SIGN_DATA_CONCAT_KEY + e.getValue())
                 .collect(Collectors.joining(SIGN_CONCAT_KEY));
         newSignStr = newSignStr +  SIGN_CONCAT_KEY + MD5_KEY + SIGN_DATA_CONCAT_KEY + secKey;

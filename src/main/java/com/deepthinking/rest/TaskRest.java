@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
+import static com.deepthinking.common.constant.MarketType.getTradeDateStr;
 import static com.deepthinking.common.enums.DateFormatEnum.DATE;
 import static com.dtflys.forest.backend.ContentType.APPLICATION_JSON;
 
@@ -66,7 +67,7 @@ public class TaskRest {
      */
     @GetMapping("stock/daily")
     public Result<Void> syncStockTradeList() {
-        Threads.asyncExecute(stockKlineDailyService::syncStockKlineDailyList);
+        Threads.asyncExecute(()-> stockKlineDailyService.syncStockKlineDailyList(getTradeDateStr()));
         return Result.success();
 
     }
@@ -76,7 +77,7 @@ public class TaskRest {
      */
     @GetMapping("concept/daily")
     public Result<Void> syncConceptTradeList() {
-        Threads.asyncExecute(() -> conceptDelayService.syncConceptTradeList(50));
+        Threads.asyncExecute(() -> conceptDelayService.syncConceptTradeList(10));
         return Result.success();
     }
 
@@ -154,7 +155,7 @@ public class TaskRest {
         if (fundHoldDetailData.length > 0) {
             stockFundHoldDetailService.batchSave(fundHoldDetailData);
             String expirationDate = fundHoldDetailData[0].get("expirationDate");
-            if (StringUtils.isEmpty(exDate) || exDate.equals(expirationDate)) {  // 该接口会返回往年所有的明细，遇到时间改变时停止
+            if (StrUtil.isEmpty(exDate) || exDate.equals(expirationDate)) {  // 该接口会返回往年所有的明细，遇到时间改变时停止
                 fundHoldDetail(scode, expirationDate, page + 1);
             }
         }

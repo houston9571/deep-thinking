@@ -68,12 +68,7 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
      * 概念板块列表，按涨跌幅排序
      */
     public void syncConceptTradeList(int top) {
-        int total = 0, pageNum = 0, pageSize = 100;
-        int pageCount = top / pageSize + (top % pageSize > 0 ? 1 : 0);
-        if (top < pageSize) {
-            pageCount = 1;
-            pageSize = top;
-        }
+        int total = 0, count = 0, pageNum = 0, pageSize = Math.min(top, 100);
         List<ConceptDelay> list = new ArrayList<>();
         do {
             JSONObject json = eastMoneyConceptApi.syncConceptTradeList(++pageNum, pageSize, System.currentTimeMillis());
@@ -88,7 +83,6 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
                 try {
                     ConceptDelay conceptDelay = JSONObject.parseObject(array.getString(i), ConceptDelay.class);
                     syncConceptFundsFlow(conceptDelay);
-                    saveOrUpdate(conceptDelay, new String[]{"concept_code", "trade_date"});
                     list.add(conceptDelay);
                 } catch (Exception e) {
                     log.error(">>>>>syncConceptTradeList JSONObject.parseObject error. {} {}", array.getString(i), e.getMessage());
@@ -97,25 +91,29 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
             if (array.size() < pageSize) {
                 break;
             }
-            pageCount--;
-        } while (pageCount > 0);
+            count += array.size();
+        } while (count < top);
         log.info(">>>>>syncConceptTradeList finished total:{} list:{} ", total, list.size());
 
-        if (top <= 50) {
-            List<StockPool> pools = Lists.newArrayList();
-            for (ConceptDelay delay : list) {
-                pools.addAll(syncConceptStocks(delay.getConceptCode(), delay.getConceptName(), delay.getTradeDate()));
-            }
-            stockPoolService.addStockPools(pools);
-            log.info(">>>>>syncConceptStocks finished stock_count:{} ", pools.size());
+        saveOrUpdateBatch(list, new String[]{"concept_code", "trade_date"});
+
+        // 排名前20的概念，股票加入股票池
+        int max = Math.min(20, list.size());
+        Map<String, StockPool> map = Maps.newHashMap();
+        for (int i = 0; i < max; i++) {
+            syncConceptStocks(list.get(i), map);
         }
+        log.info(">>>>>syncConceptStocks finished stock_count:{} ", map.size());
+        stockPoolService.addStockPools(map);
+
     }
 
     /**
      * 概念板块下的股票
      */
-    private List<StockPool> syncConceptStocks(String conceptCode, String conceptName, LocalDate tradeDate) {
-        List<StockPool> list = Lists.newArrayList();
+    private void syncConceptStocks(ConceptDelay conceptDelay, Map<String, StockPool> map) {
+        String conceptCode = conceptDelay.getConceptCode();
+        String conceptName = conceptDelay.getConceptName();
         try {
             JSONObject json = eastMoneyConceptApi.syncConceptStocks(conceptCode, System.currentTimeMillis());
             JSONObject data = json.getJSONObject(LABEL_DATA);
@@ -123,18 +121,17 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
                 log.error(NOT_GET_PAGE_ERROR.getMsg("syncConceptStocks ConceptCode=" + conceptCode));
             }
             JSONArray array = data.getJSONArray("diff");
-            log.info(">>>>>syncConceptStocks   data:{} total:{}", array.size(), data.getInteger(LABEL_TOTAL));
+            log.info(">>>>>syncConceptStocks 【{}】{}  data:{} total:{}", conceptCode, conceptName, array.size(), data.getInteger(LABEL_TOTAL));
             for (int i = 0; i < array.size(); i++) {
                 StockPool stock = JSONObject.parseObject(array.getString(i), StockPool.class);
-                stock.setTradeDate(tradeDate);
+                stock.setTradeDate(conceptDelay.getTradeDate());
                 stock.setConceptCode(conceptCode);
                 stock.setConceptName(conceptName);
-                list.add(stock);
+                map.put(stock.getStockCode(), stock);
             }
         } catch (Exception e) {
             log.error(">>>>>syncConceptStocks {} {} {}", conceptCode, conceptName, e.getMessage());
         }
-        return list;
     }
 
     /**

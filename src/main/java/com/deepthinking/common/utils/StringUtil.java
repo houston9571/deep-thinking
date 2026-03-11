@@ -12,8 +12,9 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import cn.hutool.core.util.StrUtil;
 
-public class StringUtil extends StringUtils {
+public class StringUtil extends StrUtil {
 
     private static final String[] SCRIPT = {"bash", ".", "redirect", "url", "referer", "http", "systemd", "shell", "cd+", "rm+", "wget", "curl", "chmod", "sh+", "sql", "script>", "<script", "alert(", "iframe", "grant", "drop"};
 
@@ -21,20 +22,11 @@ public class StringUtil extends StringUtils {
 
 
     public static boolean validationScript(String str) {
-        return StringUtils.containsAny(str, SCRIPT);
+        return StrUtil.containsAny(str, SCRIPT);
     }
 
     public static String trim(String str) {
         return isEmpty(str) ? "" : str.trim();
-    }
-
-    public static String splitFirst(String str, String separatorChars) {
-        if (str != null) {
-            String[] ss = split(str, separatorChars);
-            if (ss.length > 1)
-                return ss[0];
-        }
-        return str;
     }
 
 
@@ -139,7 +131,7 @@ public class StringUtil extends StringUtils {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
             }
-            param = StringUtils.substringBeforeLast(sb.toString(), "&");
+            param = StrUtil.subAfter(sb.toString(), "&", true);
         }
         return param;
     }

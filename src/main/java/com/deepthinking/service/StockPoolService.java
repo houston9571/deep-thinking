@@ -6,6 +6,7 @@ import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.entity.StockPool;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StockPoolService extends MybatisBaseService<StockPool> {
 
@@ -13,6 +14,7 @@ public interface StockPoolService extends MybatisBaseService<StockPool> {
 
     Result<Integer> syncStockCalcKlineIndicators();
 
-    void addStockPools(List<StockPool> list);
+    void addStockPools(Map<String, StockPool> map);
 
+    void addStockPools(List<StockKlineDaily> stockKlineDailyList);
 }

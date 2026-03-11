@@ -2,11 +2,14 @@ package com.deepthinking;
 
 import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
 import com.alicp.jetcache.anno.config.EnableMethodCache;
+import com.deepthinking.ext.filter.CorsFilter;
 import com.dtflys.forest.springboot.annotation.ForestScan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -41,6 +44,17 @@ public class Application {
 //        SortedMap<String, String> m = Maps.newTreeMap();
 //        p.keySet().forEach(e -> m.put(String.valueOf(e), p.getProperty(String.valueOf(e))));
 //        m.keySet().forEach(k -> logger.info("{}={}", k, m.get(k)));
+    }
+
+
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration(CorsFilter corsFilter) {
+        FilterRegistrationBean<CorsFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(corsFilter);
+        registration.addUrlPatterns("*");
+        registration.setName("CorsFilter");
+        registration.setOrder(1);
+        return registration;
     }
 
 }

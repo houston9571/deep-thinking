@@ -17,7 +17,6 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      password:                 # 如果没有密码则留空或删除此行
       database: 0
       lettuce:
         pool:
@@ -44,7 +43,6 @@ jetcache:
       expireAfterWriteInMillis: 3600000   # 1小时后远程缓存失效，单位毫秒
       host: ${spring.data.redis.host}     # Redis连接配置（继承spring.redis.*，也可单独覆盖）
       port: ${spring.data.redis.port}
-      password: ${spring.data.redis.password}
       database: ${spring.data.redis.database}
       poolConfig:
         minIdle: 1
@@ -67,12 +65,14 @@ spring:
     hikari:
       pool-name: DatebookHikariCP
       auto-commit: true
-      connection-test-query: SELECT 1
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1765000
       maximum-pool-size: 50
-      minimum-idle: 20
+      minimum-idle: 5
+      idle-timeout: 600000                  # 10分钟, 空闲连接的最大存活时间（毫秒），超过该时间且未被使用则被回收, 只对超过 minimum-idle 的空闲连接生效
+      connection-timeout: 30000             # 连接的超时时间（毫秒），即从连接池获取连接的等待时间
+      max-lifetime: 1800000                 # 30分钟（应小于数据库的 wait_timeout） 连接的最大生命周期（毫秒），无论是否空闲，到达时间后强制关闭
+      keepalive-time: 300000                # 5分钟（HikariCP 2.6+ 支持，用于保持连接活跃）, 空闲连接测试的间隔
+      connection-test-query: SELECT 1       # 连接池将向数据库发送一个测试查询以验证连接是否有效
+      validation-timeout: 5000              # 测试连接的超时时间, 从连接池获取连接时是否测试连接有效性（性能影响，生产建议设为 true）
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
@@ -117,12 +117,14 @@ spring:
     hikari:
       pool-name: DatebookHikariCP
       auto-commit: true
-      connection-test-query: SELECT 1
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1765000
       maximum-pool-size: 50
-      minimum-idle: 20
+      minimum-idle: 5
+      idle-timeout: 600000                  # 10分钟, 空闲连接的最大存活时间（毫秒），超过该时间且未被使用则被回收, 只对超过 minimum-idle 的空闲连接生效
+      connection-timeout: 30000             # 连接的超时时间（毫秒），即从连接池获取连接的等待时间
+      max-lifetime: 1800000                 # 30分钟（应小于数据库的 wait_timeout） 连接的最大生命周期（毫秒），无论是否空闲，到达时间后强制关闭
+      keepalive-time: 300000                # 5分钟（HikariCP 2.6+ 支持，用于保持连接活跃）, 空闲连接测试的间隔
+      connection-test-query: SELECT 1       # 连接池将向数据库发送一个测试查询以验证连接是否有效
+      validation-timeout: 5000              # 测试连接的超时时间, 从连接池获取连接时是否测试连接有效性（性能影响，生产建议设为 true）
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

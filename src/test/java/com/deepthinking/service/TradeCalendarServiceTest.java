@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.LocalDate;
 
 import static com.deepthinking.common.constant.Constants.ROUND_MODE;
 import static java.time.format.TextStyle.SHORT;
@@ -15,7 +16,7 @@ public class TradeCalendarServiceTest {
 
     @Test
     public void test2() {
-
+        System.out.println(LocalDate.now());
     }
 
     @Test

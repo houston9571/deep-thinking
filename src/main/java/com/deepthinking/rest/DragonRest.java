@@ -21,7 +21,7 @@ import static com.dtflys.forest.backend.ContentType.APPLICATION_JSON;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "dragon", produces = APPLICATION_JSON)
-public class DragonListRest {
+public class DragonRest {
 
     private final DragonStockService dragonStockService;
 

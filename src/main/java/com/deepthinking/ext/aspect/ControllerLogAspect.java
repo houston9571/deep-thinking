@@ -1,6 +1,7 @@
 package com.deepthinking.ext.aspect;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.deepthinking.common.utils.IPUtils;
 import jakarta.servlet.ServletRequest;
@@ -8,7 +9,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -50,9 +50,9 @@ public class ControllerLogAspect {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         HttpServletResponse response = attributes.getResponse();
-        if (StringUtils.endsWithAny(request.getRequestURI(), nonPrint[0], nonPrint[1])) {
-            return proceedingJoinPoint.proceed();
-        }
+//        if (StrUtil.endWithAny(request.getRequestURI(), nonPrint[0], nonPrint[1])) {
+//            return proceedingJoinPoint.proceed();
+//        }
         StringBuilder logLine = new StringBuilder();
         MethodSignature methodSignature = ((MethodSignature) proceedingJoinPoint.getSignature());
         logLine.append("\n========================================== Start ==========================================");

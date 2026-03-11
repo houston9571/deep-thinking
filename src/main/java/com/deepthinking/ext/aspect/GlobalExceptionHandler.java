@@ -1,5 +1,6 @@
 package com.deepthinking.ext.aspect;
 
+import cn.hutool.core.util.StrUtil;
 import com.deepthinking.common.exception.ParamValidatorException;
 import com.deepthinking.common.exception.ServiceException;
 import com.deepthinking.ext.base.Result;
@@ -60,7 +61,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ServletRequestBindingException.class})
     public Result<Void> handleException(ServletRequestBindingException e) {
         String msg = e.getMessage();
-        if (StringUtils.contains(msg, "'")) {
+        if (StrUtil.contains(msg, "'")) {
             msg = "miss parameters " + e.getMessage().substring(msg.indexOf("'") + 1, msg.lastIndexOf("'"));
         }
         return loggingError(Result.fail(PARAM_ERROR_S.getCode(), String.format(PARAM_ERROR_S.getMsg(), msg)));

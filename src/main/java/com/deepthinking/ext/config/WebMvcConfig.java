@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry viewControllerRegistry) {
-        viewControllerRegistry.addViewController("/").setViewName("index");
-        //设置ViewController的优先级,将此处的优先级设为最高,当存在相同映射时依然优先执行
-        viewControllerRegistry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        super.addViewControllers(viewControllerRegistry);
-    }
+//    @Override
+//    public void addViewControllers(ViewControllerRegistry viewControllerRegistry) {
+//        viewControllerRegistry.addViewController("/").setViewName("index");
+//        //设置ViewController的优先级,将此处的优先级设为最高,当存在相同映射时依然优先执行
+//        viewControllerRegistry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+//        super.addViewControllers(viewControllerRegistry);
+//    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -49,19 +49,19 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         super.addResourceHandlers(registry);
     }
 
-
-    /**
-     * 匹配所有的URI，允许所有的外域发起跨域请求，允许外域发起请求POST/GET，允许跨域请求包含任意的头信息。
-     *
-     * @param registry
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("POST", "GET", "PUT", "DELETE")
-                .allowedHeaders("*");
-    }
+//
+//    /**
+//     * 匹配所有的URI，允许所有的外域发起跨域请求，允许外域发起请求POST/GET，允许跨域请求包含任意的头信息。
+//     *
+//     * @param registry
+//     */
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOrigins("*")
+//                .allowedMethods("POST", "GET", "PUT", "DELETE")
+//                .allowedHeaders("*");
+//    }
 
 
     @Override
@@ -113,7 +113,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
      * 解决 springfox-boot-starter (Swagger 3.0) 后，启动容器会报错：Failed to start bean ‘ documentationPluginsBootstrapper ‘
      * @return
      */
-    @Bean
+//    @Bean
     public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
         return new BeanPostProcessor() {
             @Override
