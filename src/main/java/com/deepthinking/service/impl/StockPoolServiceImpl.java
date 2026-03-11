@@ -66,10 +66,11 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
         List<StockKlineDaily> stockKlineDailyList = stockKlineDailyService.getStockKlineDailyList(getTradeDateStr());
         List<StockPool> stockPools = Lists.newArrayList();
         for (StockKlineDaily stock : stockKlineDailyList) {
-            if (map.containsKey(stock.getStockCode()) && isPassedStrategy(stock)) {         // 匹配到top25概念板块, 策略精选后加入股票池
+            if (map.containsKey(stock.getStockCode()) && isPassedStrategy(stock)) {         // top20概念板块匹配, 策略精选后加入股票池
                 stockPools.add(map.get(stock.getStockCode()));
             }
         }
+        log.info(">>>>>addStockPools top20概念板块匹配, 策略精选后加入股票池:{} ", stockPools.size());
         saveOrUpdateBatch(stockPools, new String[]{"stock_code", "trade_date"});
         // todo 计算日线指标
     }
@@ -83,6 +84,7 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
                 stockPools.add(p);
             }
         }
+        log.info(">>>>>addStockPools 日线行情更新, 策略精选后加入股票池:{} ", stockPools.size());
         saveOrUpdateBatch(stockPools, new String[]{"stock_code", "trade_date"});
         // todo 计算日线指标
     }
