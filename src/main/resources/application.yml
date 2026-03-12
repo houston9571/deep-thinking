@@ -58,8 +58,7 @@ spring:
   datasource:
     name: quant
     type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/quant?rewriteBatchedStatements=true
+    url: jdbc:mysql://127.0.0.1:3306/quant?rewriteBatchedStatements=true&useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&connectTimeout=60000&socketTimeout=60000
     username: root
     password: 88888888
     hikari:
@@ -70,7 +69,7 @@ spring:
       idle-timeout: 600000                  # 10分钟, 空闲连接的最大存活时间（毫秒），超过该时间且未被使用则被回收, 只对超过 minimum-idle 的空闲连接生效
       connection-timeout: 30000             # 连接的超时时间（毫秒），即从连接池获取连接的等待时间
       max-lifetime: 1800000                 # 30分钟（应小于数据库的 wait_timeout） 连接的最大生命周期（毫秒），无论是否空闲，到达时间后强制关闭
-      keepalive-time: 300000                # 5分钟（HikariCP 2.6+ 支持，用于保持连接活跃）, 空闲连接测试的间隔
+      keepalive-time: 60000                # 5分钟（HikariCP 2.6+ 支持，用于保持连接活跃）, 空闲连接测试的间隔
       connection-test-query: SELECT 1       # 连接池将向数据库发送一个测试查询以验证连接是否有效
       validation-timeout: 5000              # 测试连接的超时时间, 从连接池获取连接时是否测试连接有效性（性能影响，生产建议设为 true）
 mybatis-plus:
@@ -80,6 +79,7 @@ mybatis-plus:
 logging:
   config: classpath:log4j2-dev.xml
   level:
+    com.zaxxer.hikari: DEBUG
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 forest:
   backend: okhttp3             # 后端HTTP框架 okhttp3 httpclient

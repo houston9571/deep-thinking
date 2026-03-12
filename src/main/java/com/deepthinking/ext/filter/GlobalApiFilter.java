@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
+//@Slf4j
+//@Component
+//@RequiredArgsConstructor
 public class GlobalApiFilter implements Filter {
 
 //    private final ApiParamAccessor apiParamAccessor;
