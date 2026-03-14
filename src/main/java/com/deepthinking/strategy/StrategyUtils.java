@@ -10,30 +10,36 @@ import java.util.List;
 public interface StrategyUtils {
 
 
+    Num NUM_NAN = DecimalNum.valueOf(Double.NaN);
     Num NUM_0 = DecimalNum.valueOf(0);
     Num NUM_1 = DecimalNum.valueOf(1);
     Num NUM_2 = DecimalNum.valueOf(2);
     Num NUM_10 = DecimalNum.valueOf(10);
     Num NUM_20 = DecimalNum.valueOf(20);
-    Num NUM_30 = DecimalNum.valueOf(20);
+    Num NUM_25 = DecimalNum.valueOf(25);
+    Num NUM_30 = DecimalNum.valueOf(30);
     Num NUM_50 = DecimalNum.valueOf(50);
+    Num NUM_60 = DecimalNum.valueOf(60);
     Num NUM_70 = DecimalNum.valueOf(70);
     Num NUM_80 = DecimalNum.valueOf(80);
     Num NUM_90 = DecimalNum.valueOf(90);
     Num NUM_100 = DecimalNum.valueOf(100);
+    Num NUM_200 = DecimalNum.valueOf(200);
+    Num NUM_N100 = DecimalNum.valueOf(-100);
+    Num NUM_N200 = DecimalNum.valueOf(-200);
 
 
     // 背离类型常量
-    public enum DivergenceType {
+    enum DivergenceType {
         NONE, TOP, BOTTOM;
     }
 
 
-    public enum SignalType {
+    enum SignalType {
         BUY, SELL, WATCH;
     }
 
-    public enum SignalLevel {
+    enum SignalLevel {
         NONE, WEAK, LOW, MEDIUM, HIGH, HIGHEST;
     }
 

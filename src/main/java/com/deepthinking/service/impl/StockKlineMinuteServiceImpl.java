@@ -40,7 +40,6 @@ public class StockKlineMinuteServiceImpl extends MybatisBaseServiceImpl<StockKli
     private final EastMoneyH5Api eastMoneyH5Api;
 
 
-
     /**
      * 股票实时交易行情和资金流向 每1分钟
      * 获取最后10条，容错及指标计算使用
@@ -50,7 +49,7 @@ public class StockKlineMinuteServiceImpl extends MybatisBaseServiceImpl<StockKli
         StockKlineMinute stockKlineMinute = JSONObject.parseObject(kline.getString(LABEL_DATA), StockKlineMinute.class);
 //        String transactionDate = kline.getJSONObject(LABEL_DATA).getJSONArray("f80").getJSONObject(1).getString("e");
 
-        JSONObject flow = eastMoneyStockApi.getFundsFlowLines(stockCode, MarketType.getMarketCode(stockCode), KLINE_1MIN, 240);
+        JSONObject flow = eastMoneyStockApi.getFundsFlowLines(stockCode, MarketType.getMarketCode(stockCode), KLINE_1MIN, 1);
         JSONObject data = flow.getJSONObject(LABEL_DATA);
         if (ObjectUtil.isEmpty(data) || !data.containsKey("klines")) {
             return Result.fail(NOT_GET_PAGE_ERROR, "");
@@ -60,19 +59,18 @@ public class StockKlineMinuteServiceImpl extends MybatisBaseServiceImpl<StockKli
         if (CollectionUtil.isEmpty(lines)) {
             return Result.fail("syncStockKlineMinute 没有数据，可能停盘");
         }
-        for (int i = 0; i < lines.size(); i++) {
-            String[] line = lines.getString(0).split(COMMA);
-            String[] t = line[0].split("\\s+");
-            stockKlineMinute.setTradeDate(DateUtils.parseLocalDate(t[0], DateFormatEnum.DATE));
-            stockKlineMinute.setTradeTime(DateUtils.parseLocalTime(t[1] + ":00", DateFormatEnum.TIME));
-            stockKlineMinute.setMainNetIn(line[1]);
-            stockKlineMinute.setSmallNetIn(line[2]);
-            stockKlineMinute.setMediumNetIn(line[3]);
-            stockKlineMinute.setLargeNetIn(line[4]);
-            stockKlineMinute.setSuperLargeNetIn(line[5]);
-        }
+        String[] line = lines.getString(0).split(COMMA);
+        String[] t = line[0].split("\\s+");
+        stockKlineMinute.setTradeDate(DateUtils.parseLocalDate(t[0], DateFormatEnum.DATE));
+        stockKlineMinute.setTradeTime(DateUtils.parseLocalTime(t[1] + ":00", DateFormatEnum.TIME));
+        stockKlineMinute.setMainNetIn(line[1]);
+        stockKlineMinute.setSmallNetIn(line[2]);
+        stockKlineMinute.setMediumNetIn(line[3]);
+        stockKlineMinute.setLargeNetIn(line[4]);
+        stockKlineMinute.setSuperLargeNetIn(line[5]);
+
         saveOrUpdate(stockKlineMinute, new String[]{"stock_code", "trade_date", "trade_time"});
-        return Result.success( );
+        return Result.success();
     }
 
 

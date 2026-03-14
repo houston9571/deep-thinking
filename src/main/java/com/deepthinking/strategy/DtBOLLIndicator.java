@@ -33,12 +33,11 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
     private List<Num> dnValues; // 下轨
     private List<Num> mdValues; // 标准差
 
-    public DtBOLLIndicator(BarSeries series) {
-        this(series, 10, 2.0);
-    }
+    private final int endIndex;
 
     public DtBOLLIndicator(BarSeries series, int n, double k) {
         super(series);
+        endIndex = series.getEndIndex();
         this.closePrice = new ClosePriceIndicator(series);
         this.barCount = n;
         this.k = k;
@@ -131,57 +130,72 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
     /**
      * 获取中轨 (MB)
      */
-    public Num getMid(int index) {
-        return mbValues.get(index);
+    public Num getMid() {
+        return mbValues.getLast();
     }
 
     /**
      * 获取上轨 (UP)
      */
-    public Num getUpper(int index) {
-        return upValues.get(index);
+    public Num getUpper() {
+        return upValues.getLast();
     }
 
     /**
      * 获取下轨 (DN)
      */
-    public Num getLower(int index) {
-        return dnValues.get(index);
+    public Num getLower() {
+        return dnValues.getLast();
     }
 
     /**
      * 获取标准差 (MD)
      */
-    public Num getMD(int index) {
-        return mdValues.get(index);
+    public Num getMD() {
+        return mdValues.getLast();
     }
 
     /**
-     * 判断是否突破上轨
+     * 判断价格是否突破上轨
      */
-    public boolean isBreakoutUp(int index) {
-        Num close = closePrice.getValue(index);
-        Num up = getUpper(index);
+    public boolean isBreakoutUp() {
+        Num close = closePrice.getValue(endIndex);
+        Num up = getUpper();
         if (close == null || up == null) return false;
         return close.isGreaterThan(up);
     }
 
     /**
-     * 判断是否跌破下轨
+     * 判断价格是否跌破下轨
      */
-    public boolean isBreakoutDown(int index) {
-        Num close = closePrice.getValue(index);
-        Num dn = getLower(index);
+    public boolean isBreakoutDown() {
+        Num close = closePrice.getValue(endIndex);
+        Num dn = getLower();
         if (close == null || dn == null) return false;
         return close.isLessThan(dn);
     }
 
     /**
+     * 上轨斜率走平或向下
+     */
+    public boolean isUpperGoDown() {
+        return getUpper().isLessThanOrEqual(upValues.get(endIndex - 1));
+    }
+
+    /**
+     * 下轨斜率走平或向上
+     */
+    public boolean isLowerGoUp() {
+        return getLower().isGreaterThanOrEqual(dnValues.get(endIndex - 1));
+    }
+
+
+    /**
      * 获取带宽 (UP - DN)
      */
-    public Num getWidth(int index) {
-        Num up = getUpper(index);
-        Num dn = getLower(index);
+    private Num getWidth(int index) {
+        Num up = upValues.get(index);
+        Num dn = dnValues.get(index);
         if (up == null || dn == null) return null;
         return up.minus(dn);
     }
@@ -202,13 +216,9 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
      * 获取当前 K 线的开口状态
      * 逻辑：比较 当前带宽 与 前一根 K 线 的带宽
      */
-    public MouthStatus getMouthStatus(int index) {
-        if (index <= 0 || getWidth(index) == null || getWidth(index - 1) == null) {
-            return MouthStatus.UNKNOWN;
-        }
-
-        Num currentWidth = getWidth(index);
-        Num prevWidth = getWidth(index - 1);
+    public MouthStatus getMouthStatus() {
+        Num currentWidth = getWidth(endIndex);
+        Num prevWidth = getWidth(endIndex - 1);
 
         // 计算变化率: (Current - Prev) / Prev
         // 防止除以零
@@ -250,13 +260,10 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
      * lookBack 默认为 5，表示看过去 5 根 K 线的平均斜率，以平滑噪音
      * 基于斜率百分比进行判断
      */
-    public MidTrend getMidTrend(int index) {
+    public MidTrend getMidTrend() {
         int lookBack = 5;
-        if (index < lookBack || getMid(index) == null || getMid(index - lookBack) == null) {
-            return null;
-        }
-        Num currentMB = getMid(index);
-        Num pastMB = getMid(index - lookBack);
+        Num currentMB = getMid();
+        Num pastMB = mbValues.get(endIndex - lookBack);
         // 斜率 = (Y2 - Y1) / X2 - X1 (这里 X 间隔就是 lookBack)
         Num slope = currentMB.minus(pastMB).dividedBy(numOf(lookBack));
         if (slope == null || currentMB.isZero()) {
@@ -282,9 +289,9 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
      * 综合策略信号示例：
      * "开口上涨"：中轨向上倾斜 + 布林带开口
      */
-    public boolean isBullishBreakout(int index) {
-        MouthStatus mouth = getMouthStatus(index);
-        MidTrend trend = getMidTrend(index);
+    public boolean isBullishBreakout() {
+        MouthStatus mouth = getMouthStatus();
+        MidTrend trend = getMidTrend();
         return (mouth == MouthStatus.OPENING || mouth == MouthStatus.PARALLEL) &&
                 (trend == MidTrend.STRONG_UP || trend == MidTrend.WEAK_UP);
     }
@@ -293,9 +300,9 @@ public class DtBOLLIndicator extends CachedIndicator<Num> {
      * 综合策略信号示例：
      * "收口盘整"：布林带收口 + 中轨走平或下倾
      */
-    public boolean isConsolidation(int index) {
-        MouthStatus mouth = getMouthStatus(index);
-        MidTrend trend = getMidTrend(index);
+    public boolean isConsolidation() {
+        MouthStatus mouth = getMouthStatus();
+        MidTrend trend = getMidTrend();
         return mouth == MouthStatus.SQUEEZING && (trend == MidTrend.FLAT || trend == MidTrend.WEAK_DOWN || trend == MidTrend.STRONG_DOWN);
     }
 

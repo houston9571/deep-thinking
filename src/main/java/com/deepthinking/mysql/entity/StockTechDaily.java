@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.deepthinking.strategy.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -31,62 +32,71 @@ public class StockTechDaily extends BaseEntity {
 
     @JSONField(format = "yyyy-MM-dd")
     private LocalDate tradeDate;
-    private BigDecimal price;
-    private BigDecimal high;
-    private BigDecimal low;
-    private BigDecimal open;
-    private BigDecimal close;
 
-    // 超短线均线：3/5/10/20
-    private BigDecimal ma3;
-    private BigDecimal ma5;
-    private BigDecimal ma10;
-    private BigDecimal ma20;
+    private StrategyUtils.SignalType signalType;
+    private StrategyUtils.SignalLevel signalLevel;
+    private String signalResult;
 
-    // MACD(5,13,1)
+    // 超短线均线： 5/10/20
+    private BigDecimal ema5;
+    private BigDecimal ema10;
+    private BigDecimal ema20;
+    private BigDecimal bias;       // 乖离率
+
+    // MACD(5,13,2)
     private BigDecimal macdDif;
     private BigDecimal macdDea;
     private BigDecimal macdBar;
-    private BigDecimal macdDiff;
+    private DtMACDIndicator.CrossStatus macdStatus;
 
-    // 超短线RSI(3,9)
-    private BigDecimal rsi3;
-    private BigDecimal rsi9;
+    // 超短线RSI(6)
+    private BigDecimal rsi6;
 
-    // KDJ(5)
+    // KDJ(5,2,2)
     private BigDecimal kdjK;
     private BigDecimal kdjD;
     private BigDecimal kdjJ;
-
-    // CCI(8)
-    private BigDecimal cci;
+    private DtKDJIndicator.CrossStatus kdjStatus;
 
     // BOLL(10) 布林带状态：1=收口,2=开口,3=正常
     private BigDecimal bollMid;
     private BigDecimal bollUpper;
     private BigDecimal bollLower;
-    private Integer bollStatus;
-
-    // ATR(6)
-    private BigDecimal atr;
-    private BigDecimal atrRatio;
+    private DtBOLLIndicator.MouthStatus bollMouthStatus;
+    private DtBOLLIndicator.MidTrend bollMidTrend;
 
     // WR(6)
     private BigDecimal wr6;
-
-    // MFI(8)
-    private BigDecimal mfi;
 
     // VMACD(5,13,1)
     private BigDecimal vmacdDif;
     private BigDecimal vmacdDea;
     private BigDecimal vmacdBar;
-    private BigDecimal vmacdDiff;
+    private DtVMACDIndicator.CrossStatus vmacdStatus;
 
-    // OBV + OBV_MA10
+    // OBV + OBV_MA5
     private Long obv;
-    private Long obvMa10;
-    private Long obvDiff;
+    private Long obvMa5;
+    private DtOBVMAIndicator.CrossStatus obvStatus;
+
+    // ATR(6)
+    private BigDecimal atr;
+    private BigDecimal mtr;
+
+    // ADX(8)
+    private BigDecimal adx;
+
+    // CCI(8)
+    private BigDecimal cci;
+
+    // CYC(5,14,34)
+    private BigDecimal cyc5;
+    private BigDecimal cyc13;
+    private BigDecimal cyc34;
+
+    // MFI(8)
+    private BigDecimal mfi;
+
 
     // 筹码平均成本（成交量加权）(30日)
     private BigDecimal avgCost;
@@ -94,14 +104,16 @@ public class StockTechDaily extends BaseEntity {
     private BigDecimal costConcentration;
 
     // 背离类型：0=无背离,1=MACD顶背离,2=MACD底背离,3=RSI顶背离,4=RSI底背离,5=KDJ顶背离,6=KDJ底背离,7=CCI顶背离,8=CCI底背离
-    private Integer divergenceType;
-    // 背离强度：0~100（值越大背离越明显）
-    private BigDecimal divergenceStrength;
+    private StrategyUtils.DivergenceType divergenceType;
+    // 背离强度：0~5（值越大背离越明显）
+    private Short divergenceStrength;
+    private String divergenceResult;
 
-    // 共振信号：0=无信号,1=短线买入,2=短线卖出,3=趋势走强,4=趋势走弱
-    private Integer resonanceSignal;
-    // 共振评分：0~100（值越高信号越可靠）
-    private BigDecimal resonanceScore;
+    private double buyScore;
+    private String buyReason;
+    private double sellScore;
+    private String sellReason;
+
 
 
 }

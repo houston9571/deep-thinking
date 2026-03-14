@@ -15,15 +15,15 @@ import static com.deepthinking.strategy.StrategyUtils.*;
 
 /**
  * 【东财官方公式版】OBVMA (能量潮移动平均线) 计算器
- *
+ * <p>
  * 核心算法：
  * 1. 计算标准 OBV 指标。
- *    - OBV[0] = Volume[0]
- *    - If Close[i] > Close[i-1], then OBV[i] = OBV[i-1] + Volume[i]
- *    - If Close[i] < Close[i-1], then OBV[i] = OBV[i-1] - Volume[i]
- *    - If Close[i] == Close[i-1], then OBV[i] = OBV[i-1]
+ * - OBV[0] = Volume[0]
+ * - If Close[i] > Close[i-1], then OBV[i] = OBV[i-1] + Volume[i]
+ * - If Close[i] < Close[i-1], then OBV[i] = OBV[i-1] - Volume[i]
+ * - If Close[i] == Close[i-1], then OBV[i] = OBV[i-1]
  * 2. 对 OBV 序列计算 N 日简单移动平均 (SMA)，得到 OBVMA。
- *    - 东财默认参数为 N=30。
+ * - 东财默认参数为 N=30。
  */
 public class DtOBVMAIndicator extends CachedIndicator<Num> {
 
@@ -32,9 +32,11 @@ public class DtOBVMAIndicator extends CachedIndicator<Num> {
     private final int obvmaBarCount; // OBVMA 周期 N (例如 30)
     private final SMAIndicator smaOfObv; // 对 OBV 序列求 SMA
     private List<Num> obvValues; // 存储计算好的 OBV 值
+    private final int endIndex;
 
     public DtOBVMAIndicator(BarSeries series, int n) {
         super(series);
+        endIndex = series.getEndIndex();
         this.closePrice = new ClosePriceIndicator(series);
         this.volume = new VolumeIndicator(series);
         this.obvmaBarCount = n;
@@ -47,6 +49,7 @@ public class DtOBVMAIndicator extends CachedIndicator<Num> {
         // 为了简化，我们直接在 calculate 方法中调用预计算好的 OBV 值
         this.smaOfObv = new SMAIndicator(new PreCalculatedObvIndicator(series, obvValues), n);
     }
+
     /**
      * 预计算整个时间序列的 OBV 值，严格按照东财公式。
      */
@@ -85,28 +88,32 @@ public class DtOBVMAIndicator extends CachedIndicator<Num> {
         }
     }
 
-    public Num getObv(int index){
-        return obvValues.get(index);
+    public Num getObv() {
+        return obvValues.getLast();
     }
 
-    public Num getObvMa(int index) {
-        return smaOfObv.getValue(index);
+    public Num getObvMa() {
+        return smaOfObv.getValue(endIndex);
     }
 
-    public boolean isHighest(int index){
-        return isHighestNum(obvValues, getObv(index));
+    public boolean isHighest() {
+        return isHighestNum(obvValues, getObv());
     }
 
-    public boolean isObvUTurnDown(int index){
-       return getObv(index).isLessThan(getObv(index - 1));
+    public boolean isLowest() {
+        return isLowestNum(obvValues, getObv());
     }
 
-    public boolean isLowest(int index){
-        return isLowestNum(obvValues, getObv(index));
+
+    // OBVMA 斜率向下
+    public boolean isObvUTurnDown() {
+        return getObv().isLessThan(obvValues.get(endIndex - 1));
     }
 
-    public boolean isObvUTurnUp(int index){
-        return getObv(index).isGreaterThan(getObv(index - 1));
+
+    // OBVMA 斜率向上
+    public boolean isObvUTurnUp() {
+        return getObv().isGreaterThan(obvValues.get(endIndex - 1));
     }
 
     public enum CrossStatus {
@@ -115,10 +122,10 @@ public class DtOBVMAIndicator extends CachedIndicator<Num> {
         NONE
     }
 
-    public CrossStatus getCrossStatus(int index){
-        if(obvValues.get(index).isGreaterThan(smaOfObv.getValue(index)) && obvValues.get(index-1).isLessThanOrEqual(smaOfObv.getValue(index-1)) ){
+    public CrossStatus getCrossStatus() {
+        if (getObv().isGreaterThan(smaOfObv.getValue(endIndex)) && obvValues.get(endIndex - 1).isLessThanOrEqual(smaOfObv.getValue(endIndex - 1))) {
             return GOLDEN_CROSS;
-        }else if (obvValues.get(index).isLessThan(smaOfObv.getValue(index)) && obvValues.get(index-1).isGreaterThanOrEqual(smaOfObv.getValue(index-1)) ){
+        } else if (getObv().isLessThan(smaOfObv.getValue(endIndex)) && obvValues.get(endIndex - 1).isGreaterThanOrEqual(smaOfObv.getValue(endIndex - 1))) {
             return DEATH_CROSS;
         }
         return NONE;

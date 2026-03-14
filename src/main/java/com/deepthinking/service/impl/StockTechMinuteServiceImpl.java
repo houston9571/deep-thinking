@@ -95,7 +95,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
             tech.setTotalAmount(Double.valueOf(trend[11]).longValue());     // 总成交额
             techMinuteList.add(tech);
         }
-        StockTechMinute tech = Ta4jMinuteIndicatorCalculator.calcMinuteIndicator(techMinuteList);
+        StockTechMinute tech = StockTechMinuteCalculator.calcMinuteIndicator(techMinuteList);
         saveOrUpdate(tech, new String[]{"stock_code", "trade_date", "trade_time"});
         log.info(">>>>>syncStockTrendsMinute stockCode:{} ", stockCode);
         return Result.success();
@@ -151,7 +151,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
                 tech.setTotalAmount(Double.valueOf(trend[11]).longValue());     // 总成交额
                 techMinuteList.add(tech);
             }
-            StockTechMinute tech = Ta4jMinuteIndicatorCalculator.calcMinuteIndicator(techMinuteList);
+            StockTechMinute tech = StockTechMinuteCalculator.calcMinuteIndicator(techMinuteList);
             saveOrUpdate(tech, new String[]{"stock_code", "trade_date", "trade_time"});
             count++;
         }

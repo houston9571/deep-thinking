@@ -18,9 +18,11 @@ public class DtMACDIndicator extends CachedIndicator<Num> {
     private List<Num> difValues;
     private List<Num> deaValues;
     private List<Num> histogramValues;
+    private final int endIndex;
 
     public DtMACDIndicator(ClosePriceIndicator indicator, int fast, int slow, int signal) {
         super(indicator);
+        endIndex = indicator.getBarSeries().getEndIndex();
         // 1. 计算快慢 EMA (严格东财逻辑)
         DtEMAIndicator emaFast = new DtEMAIndicator(indicator, fast);
         DtEMAIndicator emaSlow = new DtEMAIndicator(indicator, slow);
@@ -62,32 +64,31 @@ public class DtMACDIndicator extends CachedIndicator<Num> {
         }
     }
 
-    // ... (getter 方法同上)
 
     @Override
     protected Num calculate(int index) {
         return histogramValues.get(index);
     }
 
-    public Num getHistogram(int index) {
-        return histogramValues.get(index);
+    public Num getHistogram() {
+        return histogramValues.getLast();
     }
 
-    public Num getDIF(int index) {
-        return difValues.get(index);
+    public Num getDIF() {
+        return difValues.getLast();
     }
 
-    public Num getDEA(int index) {
-        return deaValues.get(index);
+    public Num getDEA() {
+        return deaValues.getLast();
     }
 
 
-    public boolean isHighest(int index){
-        return isHighestNum(difValues, getDIF(index));
+    public boolean isHighest() {
+        return isHighestNum(difValues, getDIF());
     }
 
-    public boolean isLowest(int index){
-        return isLowestNum(difValues, getDIF(index));
+    public boolean isLowest() {
+        return isLowestNum(difValues, getDIF());
     }
 
     public enum CrossStatus {
@@ -99,33 +100,42 @@ public class DtMACDIndicator extends CachedIndicator<Num> {
     }
 
 
-    public CrossStatus getCrossStatus(int index){
-        Num dif = getDIF(index);
-        Num dea = getDEA(index);
-        Num prevDif = getDIF(index-1);
-        Num prevDea = getDEA(index-1);
-        if(dif.isPositive() && dif.isGreaterThan(dea) && prevDif.isLessThanOrEqual(prevDea) ){          // 零轴上金叉
-            if(isRedExpand(index))
+    public CrossStatus getCrossStatus() {
+        Num dif = getDIF();
+        Num dea = getDEA();
+        Num prevDif = difValues.get(endIndex - 1);
+        Num prevDea = deaValues.get(endIndex - 1);
+        if (dif.isPositive() && dif.isGreaterThan(dea) && prevDif.isLessThanOrEqual(prevDea)) {          // 零轴上金叉
+            if (isRed() && isExpand())
                 return CrossStatus.GOLDEN_CROSS_RED;
             return CrossStatus.GOLDEN_CROSS;
-        }else if (dif.isNegative() && dif.isLessThan(dea) && prevDif.isGreaterThanOrEqual(prevDea) ){   // 零轴下死叉
-            if(isGreenExpand(index))
+        } else if (dif.isNegative() && dif.isLessThan(dea) && prevDif.isGreaterThanOrEqual(prevDea)) {   // 零轴下死叉
+            if (isGreen() && isShirk())
                 return CrossStatus.DEATH_CROSS_GREEN;
             return CrossStatus.DEATH_CROSS;
         }
         return CrossStatus.NONE;
     }
 
-    // 红柱放大
-    public boolean isRedExpand(int index){
-        return getHistogram(index).isPositive() && getHistogram(index).isGreaterThan(getHistogram(index-1));
+    // 红柱
+    public boolean isRed() {
+        return getHistogram().isPositive();
     }
 
-    // 绿柱放大
-    public boolean isGreenExpand(int index){
-        return getHistogram(index).isNegative() && getHistogram(index).isLessThan(getHistogram(index-1));
+    // 绿柱
+    public boolean isGreen() {
+        return getHistogram().isNegative();
     }
 
+    // 柱放大
+    public boolean isExpand() {
+        return getHistogram().isGreaterThan(histogramValues.get(endIndex - 1));
+    }
+
+    // 柱缩小
+    public boolean isShirk() {
+        return getHistogram().isLessThan(histogramValues.get(endIndex - 1));
+    }
 
     @Override
     public int getCountOfUnstableBars() {

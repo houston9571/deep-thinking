@@ -95,9 +95,9 @@ public class SyncTask {
     void syncConceptDaily() {
         if (isTradeTime() && LocalTime.now().isAfter(MORNING_0945)) {                       // 09:45开始同步，k线指标才能满足数量15
             Threads.sleep(10_000);
-            log.info(" --> 同步概念板块【concept_daily】开始 top25");
+            log.info(" --> 同步概念板块【concept_daily】开始 top100");
             conceptDelayService.syncConceptTradeList(100);
-            log.info(" --> 同步概念板块【concept_daily】结束 top25");
+            log.info(" --> 同步概念板块【concept_daily】结束 top100");
         }
     }
 

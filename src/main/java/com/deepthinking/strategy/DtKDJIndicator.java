@@ -23,17 +23,14 @@ public class DtKDJIndicator extends CachedIndicator<Num> {
     private final HighestValueIndicator highestN;
     private final LowestValueIndicator lowestN;
     @Getter
-    Num k;
+    private Num k;
     @Getter
-    Num d;
+    private Num d;
     @Getter
-    Num j;
-    Num maxJ;
-    Num minJ;
-
-    public DtKDJIndicator(BarSeries series) {
-        this(series, 5, 2, 2);
-    }
+    private Num j;
+    private Num maxK;
+    private Num minK;
+    int endIndex;
 
     public DtKDJIndicator(BarSeries series, int n, int m1, int m2) {
         super(series);
@@ -43,16 +40,16 @@ public class DtKDJIndicator extends CachedIndicator<Num> {
         closePriceIndicator = new ClosePriceIndicator(series);
         highestN = new HighestValueIndicator(new HighPriceIndicator(series), n);
         lowestN = new LowestValueIndicator(new LowPriceIndicator(series), n);
-        int lastIdx = series.getEndIndex();
-        k = calcK(lastIdx);
-        d = calcD(lastIdx);
+        endIndex = series.getEndIndex();
+        k = calcK(endIndex);
+        d = calcD(endIndex);
         j = k.multipliedBy(numOf(3)).minus(d.multipliedBy(numOf(2)));    //J = 3K - 2D
-        maxJ = j;
-        minJ = j;
-        for (int i = lastIdx - N + 1; i < lastIdx; i++) {
-            Num tj = calcJ(i);
-            maxJ = maxJ.max(tj);
-            minJ = minJ.min(tj);
+        maxK = k;
+        minK = k;
+        for (int i = endIndex - N + 1; i < endIndex; i++) {
+            Num t = calcK(i);
+            maxK = maxK.max(t);
+            minK = minK.min(t);
         }
     }
 
@@ -84,6 +81,7 @@ public class DtKDJIndicator extends CachedIndicator<Num> {
         return calcD(index - 1).multipliedBy(numOf(M2 - 1)).dividedBy(numOf(M2))
                 .plus(k.dividedBy(numOf(M2)));      // D = ((M2-1)/M2 * prevD) + ((1/M2) * K)
     }
+
     private Num calcJ(int index) {
         return calcK(index).multipliedBy(numOf(3)).minus(calcD(index).multipliedBy(numOf(2)));    //J = 3K - 2D
     }
@@ -99,9 +97,9 @@ public class DtKDJIndicator extends CachedIndicator<Num> {
         return j;
     }
 
-    public CrossStatus getCrossStatus(int index) {
-        Num kPrev = calcK(index - 1);
-        Num dPrev = calcD(index - 1);
+    public CrossStatus getCrossStatus() {
+        Num kPrev = calcK(endIndex - 1);
+        Num dPrev = calcD(endIndex - 1);
         if (k.isGreaterThan(d) && kPrev.isLessThanOrEqual(dPrev)) {                     // 条件：今日 K > D 且 昨日 K <= D
             return GOLDEN_CROSS;
         } else if (k.isLessThan(d) && kPrev.isGreaterThanOrEqual(dPrev)) {
@@ -110,13 +108,63 @@ public class DtKDJIndicator extends CachedIndicator<Num> {
         return NONE;
     }
 
+    /**
+     * 超买（>80）
+     */
+    public boolean isOverbought() {
+        return getJ().isGreaterThan(NUM_80);
+    }
+
+    public boolean isSeriousOverbought() {
+        return getJ().isGreaterThan(NUM_90);
+    }
+
+    /**
+     * 超卖（<20）
+     */
+    public boolean isOversold() {
+        return getJ().isLessThan(NUM_20);
+    }
+
+    public boolean isSeriousOversold() {
+        return getJ().isLessThan(NUM_10);
+    }
+
 
     public boolean isHighest() {
-        return getJ().isGreaterThanOrEqual(maxJ);
+        return getK().isGreaterThanOrEqual(maxK);
     }
 
     public boolean isLowest() {
-        return getJ().isLessThanOrEqual(minJ);
+        return getK().isLessThanOrEqual(minK);
+    }
+
+    /**
+     * 高位（>80）
+     */
+    public boolean isHighK() {
+        return getK().isGreaterThan(NUM_80);
+    }
+
+    /**
+     * 低位（<20）
+     */
+    public boolean isLowK() {
+        return getK().isLessThan(NUM_20);
+    }
+
+    /**
+     * 高位（>80）
+     */
+    public boolean isHighD() {
+        return getD().isGreaterThan(NUM_80);
+    }
+
+    /**
+     * 低位（<20）
+     */
+    public boolean isLowD() {
+        return getD().isLessThan(NUM_20);
     }
 
     @Override

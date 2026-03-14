@@ -21,43 +21,50 @@ public class DtWRIndicator extends CachedIndicator<Num> {
     private final LowPriceIndicator lowPrice;
     private final ClosePriceIndicator closePrice;
     private final int barCount; // WR 周期 N
+    private final int endIndex;
+    private Num wr;
 
     public DtWRIndicator(BarSeries series, int n) {
         super(series);
+        endIndex = series.getEndIndex();
         this.highPrice = new HighPriceIndicator(series);
         this.lowPrice = new LowPriceIndicator(series);
         this.closePrice = new ClosePriceIndicator(series);
         this.barCount = n;
+        preCalculate();
+    }
+
+    private void preCalculate() {
+        HighestValueIndicator highestHigh = new HighestValueIndicator(highPrice, barCount);
+        LowestValueIndicator lowestMin = new LowestValueIndicator(lowPrice, barCount);
+
+        Num highestHighPrice = highestHigh.getValue(endIndex);
+        Num lowestLowPrice = lowestMin.getValue(endIndex);
+
+        // 按照东财公式计算 WR
+        // WR = (N日内最高价 - 当日收盘价) / (N日内最高价 - N日内最低价) * 100
+        wr = ((highestHighPrice.minus(closePrice.getValue(endIndex))).dividedBy(highestHighPrice.minus(lowestLowPrice))).multipliedBy(NUM_100);
+
     }
 
     @Override
     protected Num calculate(int index) {
-        HighestValueIndicator highestHigh = new HighestValueIndicator(highPrice, barCount);
-        LowestValueIndicator lowestMin = new LowestValueIndicator(lowPrice, barCount);
-
-        Num highestHighPrice = highestHigh.getValue(index);
-        Num lowestLowPrice = lowestMin.getValue(index);
-
-        // 按照东财公式计算 WR
-        // WR = (N日内最高价 - 当日收盘价) / (N日内最高价 - N日内最低价) * 100
-        return ((highestHighPrice.minus(closePrice.getValue(index))).dividedBy(highestHighPrice.minus(lowestLowPrice))).multipliedBy(NUM_100);
+        return wr;
     }
 
 
     /**
-     * 超买区‌：WR ≤ 20‌（表示价格接近N日内最高点，可能回调）
+     * 超买区‌：WR ≤ 20‌（表示价格接近N日内最高点，可能回调）值越低越超买
      */
-    public boolean isOverbought(int index) {
-        Num rsi = getValue(index);
-        return rsi != null && rsi.isLessThanOrEqual(NUM_20);
+    public boolean isOverbought() {
+        return wr.isLessThanOrEqual(NUM_20);
     }
 
     /**
-     * 超卖区‌：WR ≥ 80‌（表示价格接近N日内最低点，可能反弹）
+     * 超卖区‌：WR ≥ 80‌（表示价格接近N日内最低点，可能反弹）值越高越超卖
      */
-    public boolean isOversold(int index) {
-        Num rsi = getValue(index);
-        return rsi != null && rsi.isGreaterThanOrEqual(NUM_80);
+    public boolean isOversold() {
+        return wr.isGreaterThanOrEqual(NUM_80);
     }
 
     @Override

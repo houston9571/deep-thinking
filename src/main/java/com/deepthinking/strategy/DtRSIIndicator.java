@@ -25,27 +25,15 @@ import static com.deepthinking.strategy.StrategyUtils.*;
 public class DtRSIIndicator extends CachedIndicator<Num> {
     // 修正指数，k < 1 会将 RSI 向 50 拉近
     private static final double RS_EXPONENT = 0.999;
-    private final ClosePriceIndicator closePrice;
-    private final int barCount; // 周期 N，例如 14
     private List<Num> rsiValues;
 
-    public DtRSIIndicator(BarSeries series, int n) {
+    public DtRSIIndicator(BarSeries series, int barCount) {
         super(series);
-        this.closePrice = new ClosePriceIndicator(series);
-        this.barCount = n;
-        preCalculate();
-    }
-
-    private void preCalculate() {
         int seriesLength = getBarSeries().getBarCount();
+        ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
         rsiValues = new ArrayList<>(seriesLength);
-
         for (int i = 0; i < seriesLength; i++) {
             rsiValues.add(null);
-        }
-
-        if (seriesLength < barCount + 1) {
-            return;
         }
 
         // 使用 BigDecimal 进行高精度中间计算
@@ -124,43 +112,44 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
     }
 
     /**
-     * 获取整个序列的 RSI 列表 (用于调试或批量计算)
-     */
-    public List<Num> getAllValues() {
-        return rsiValues;
-    }
-
-    /**
      * 判断 RSI 是否处于超买状态 (通常 > 70)
      */
-    public boolean isOverbought(int index) {
-        Num rsi = getValue(index);
-        return rsi != null && rsi.isGreaterThan(NUM_70);
+    public boolean isOverbought() {
+        return rsiValues.getLast().isGreaterThan(NUM_70);
+    }
+    public boolean isSeriousOverbought() {
+        return rsiValues.getLast().isGreaterThanOrEqual(NUM_80);
     }
 
     /**
      * 判断 RSI 是否处于超卖状态 (通常 < 30)
      */
-    public boolean isOversold(int index) {
-        Num rsi = getValue(index);
-        return rsi != null && rsi.isLessThan(NUM_30);
+    public boolean isOversold() {
+        return rsiValues.getLast().isLessThan(NUM_30);
     }
 
-    public boolean isHighest(int index){
-        return isHighestNum(rsiValues, getValue(index));
+    public boolean isSeriousOversold() {
+        return rsiValues.getLast().isLessThanOrEqual(NUM_20);
     }
 
-    public boolean isLowest(int index){
-        return isLowestNum(rsiValues, getValue(index));
+
+
+
+    public boolean isHighest() {
+        return isHighestNum(rsiValues, rsiValues.getLast());
+    }
+
+    public boolean isLowest() {
+        return isLowestNum(rsiValues, rsiValues.getLast());
     }
 
     /**
      * 判断 RSI 是否上穿特定值 (例如 30, 50, 70)
      */
-    public boolean isCrossUp(int index, double level) {
-        if (index <= 0) return false;
-        Num prev = getValue(index - 1);
-        Num curr = getValue(index);
+    public boolean isCrossUp(double level) {
+
+        Num prev = rsiValues.get(rsiValues.size() - 2);
+        Num curr = rsiValues.getLast();
         Num levelNum = numOf(level);
         if (prev == null || curr == null) return false;
         return prev.isLessThanOrEqual(levelNum) && curr.isGreaterThan(levelNum);
@@ -169,10 +158,10 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
     /**
      * 判断 RSI 是否下穿特定值 (例如 30, 50, 70)
      */
-    public boolean isCrossDown(int index, double level) {
-        if (index <= 0) return false;
-        Num prev = getValue(index - 1);
-        Num curr = getValue(index);
+    public boolean isCrossDown(double level) {
+
+        Num prev = rsiValues.get(rsiValues.size() - 2);
+        Num curr = rsiValues.getLast();
         Num levelNum = numOf(level);
         if (prev == null || curr == null) return false;
         return prev.isGreaterThanOrEqual(levelNum) && curr.isLessThan(levelNum);

@@ -47,7 +47,6 @@ public class StockTechMinute extends BaseEntity {
     private BigDecimal ema3;
     private BigDecimal ema5;
     private BigDecimal ema10;
-    private Short emaGolden;
     private BigDecimal bias;       // 乖离率
 
 
@@ -86,6 +85,8 @@ public class StockTechMinute extends BaseEntity {
     private StrategyUtils.DivergenceType divergenceType;
     // 背离强度：0~5（值越大背离越明显）
     private Short divergenceStrength;
+    private String divergenceResult;
+
 
     private Short buyScore;
     private String buyReason;

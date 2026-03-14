@@ -77,4 +77,6 @@ public interface Constants {
 
     String PERCENT = "%";
 
+    String HASH = "#";
+
 }

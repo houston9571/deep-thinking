@@ -77,7 +77,7 @@ public class TaskRest {
      */
     @GetMapping("concept/daily")
     public Result<Void> syncConceptTradeList() {
-        Threads.asyncExecute(() -> conceptDelayService.syncConceptTradeList(10));
+        Threads.asyncExecute(() -> conceptDelayService.syncConceptTradeList(100));
         return Result.success();
     }
 

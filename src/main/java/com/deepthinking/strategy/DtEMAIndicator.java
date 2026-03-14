@@ -23,9 +23,11 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
     private final Indicator<Num> indicator;
     private final int barCount; // 周期 N
     private List<Num> emaValues;
+    private final int endIndex;
 
     public DtEMAIndicator(Indicator<Num> indicator, int n) {
         super(indicator);
+        endIndex = indicator.getBarSeries().getEndIndex();
         this.indicator = indicator;
         this.barCount = n;
         preCalculate();
@@ -35,7 +37,7 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
         int seriesLength = getBarSeries().getBarCount();
         emaValues = new ArrayList<>(seriesLength);
 
-        if (seriesLength == 0) return;
+        if (seriesLength == 0 || seriesLength < barCount) return;
 
         // 1. 计算平滑系数 alpha = 2 / (N + 1)
         Num alpha = NUM_2.dividedBy(numOf(barCount + 1));
@@ -59,6 +61,15 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
         return emaValues.get(index);
     }
 
+    // 价格向上走
+    public boolean goUp() {
+        return emaValues.getLast().isGreaterThan(emaValues.get(endIndex-1));
+    }
+
+    // 价格向下走
+    public boolean goDown() {
+        return emaValues.getLast().isLessThan(emaValues.get(endIndex-1));
+    }
 
     @Override
     public int getCountOfUnstableBars() {
