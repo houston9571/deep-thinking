@@ -67,7 +67,7 @@ public class TaskRest {
      */
     @GetMapping("stock/daily")
     public Result<Void> syncStockTradeList() {
-        Threads.asyncExecute(()-> stockKlineDailyService.syncStockKlineDailyList(getTradeDateStr()));
+        Threads.asyncExecute(() -> stockKlineDailyService.syncStockKlineDailyList(getTradeDateStr()));
         return Result.success();
 
     }
@@ -104,7 +104,8 @@ public class TaskRest {
      */
     @GetMapping("stock/trends/all/{code}")
     public Result<Void> getStockTrendsALL(@PathVariable String code) {
-        return stockTechMinuteService.syncStockTrendsMinuteAll(code);
+        stockTechMinuteService.syncStockTechMinuteAllDay(code);
+        return Result.success();
     }
 
     /**
@@ -112,7 +113,8 @@ public class TaskRest {
      */
     @GetMapping("stock/trends/{code}")
     public Result<Void> getStockTrends(@PathVariable String code) {
-        return stockTechMinuteService.syncStockTrendsMinute(code);
+        stockTechMinuteService.syncStockTechMinute(code);
+        return Result.success();
     }
 
 
@@ -121,7 +123,8 @@ public class TaskRest {
      */
     @GetMapping("stock/kline/{code}")
     public Result<Void> getStockTradeRealtime(@PathVariable String code) {
-        return stockKlineMinuteService.syncStockKlineMinute(code);
+        stockKlineMinuteService.syncStockKlineMinute(code);
+        return Result.success();
     }
 
 

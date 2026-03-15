@@ -20,6 +20,8 @@ public enum ErrorCode {
 
     REQUEST_UNSUPPORTED(1002, "不支持该请求: %s", "The request is not supported: %s"),
 
+    NO_RESOURCE_FOUND(1002, "找不到该资源: %s", "No Resource Found: %s"),
+
     INTERFACE_UNSUPPORTED(1003, "不支持该接口", "This interface is not supported"),
 
     ATTACK_FILTER(1004, "攻击过滤: 该请求包含非法字符", "Attack Filter: The request contains illegal characters"),

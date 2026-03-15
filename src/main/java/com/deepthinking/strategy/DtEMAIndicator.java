@@ -21,19 +21,17 @@ import static com.deepthinking.strategy.StrategyUtils.*;
 public class DtEMAIndicator extends CachedIndicator<Num> {
 
     private final Indicator<Num> indicator;
-    private final int barCount; // 周期 N
     private List<Num> emaValues;
     private final int endIndex;
 
-    public DtEMAIndicator(Indicator<Num> indicator, int n) {
+    public DtEMAIndicator(Indicator<Num> indicator, int barCount) {
         super(indicator);
         endIndex = indicator.getBarSeries().getEndIndex();
         this.indicator = indicator;
-        this.barCount = n;
-        preCalculate();
+        preCalculate(barCount);
     }
 
-    private void preCalculate() {
+    private void preCalculate(int barCount) {
         int seriesLength = getBarSeries().getBarCount();
         emaValues = new ArrayList<>(seriesLength);
 
@@ -56,6 +54,10 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
         }
     }
 
+    public Num getEMA(){
+        return emaValues.getLast();
+    }
+
     @Override
     protected Num calculate(int index) {
         return emaValues.get(index);
@@ -63,12 +65,12 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
 
     // 价格向上走
     public boolean goUp() {
-        return emaValues.getLast().isGreaterThan(emaValues.get(endIndex-1));
+        return getEMA().isGreaterThan(emaValues.get(endIndex-1));
     }
 
     // 价格向下走
     public boolean goDown() {
-        return emaValues.getLast().isLessThan(emaValues.get(endIndex-1));
+        return getEMA().isLessThan(emaValues.get(endIndex-1));
     }
 
     @Override
@@ -76,10 +78,4 @@ public class DtEMAIndicator extends CachedIndicator<Num> {
         return 0;
     }
 
-    /**
-     * 获取整个序列的 EMA 列表 (用于调试或批量计算)
-     */
-    public List<Num> getAllValues() {
-        return emaValues;
-    }
 }

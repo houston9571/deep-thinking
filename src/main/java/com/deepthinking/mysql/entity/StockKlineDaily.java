@@ -194,7 +194,7 @@ public class StockKlineDaily extends BaseEntity {
 //    private BigDecimal changePercent60;
 
     /**
-     * f37 ROE
+     * f37 ROE 权益净利率
      */
     @JSONField(alternateNames = "f37", deserializeUsing = NumberCheckReader.class, serializeUsing = PercentageWriter.class)
     private BigDecimal roe;

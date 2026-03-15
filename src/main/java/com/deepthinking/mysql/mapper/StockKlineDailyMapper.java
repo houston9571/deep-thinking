@@ -2,7 +2,6 @@ package com.deepthinking.mysql.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.deepthinking.mysql.entity.StockInfo;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import org.apache.ibatis.annotations.Select;
 

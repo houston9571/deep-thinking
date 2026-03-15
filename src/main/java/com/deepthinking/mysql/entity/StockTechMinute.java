@@ -44,7 +44,6 @@ public class StockTechMinute extends BaseEntity {
     private StrategyUtils.SignalLevel signalLevel;
     private String signalResult;
 
-    private BigDecimal ema3;
     private BigDecimal ema5;
     private BigDecimal ema10;
     private BigDecimal bias;       // 乖离率
@@ -81,16 +80,17 @@ public class StockTechMinute extends BaseEntity {
     private Long obvMa5;
     private DtOBVMAIndicator.CrossStatus obvStatus;
 
-    // 背离类型：0=无背离,1=MACD顶背离,2=MACD底背离
+    private BigDecimal atr;
+    private BigDecimal mtr;
+
     private StrategyUtils.DivergenceType divergenceType;
-    // 背离强度：0~5（值越大背离越明显）
     private Short divergenceStrength;
     private String divergenceResult;
 
 
-    private Short buyScore;
+    private Double buyScore;
     private String buyReason;
-    private Short sellScore;
+    private Double sellScore;
     private String sellReason;
 
     /**

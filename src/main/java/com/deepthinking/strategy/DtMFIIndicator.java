@@ -1,6 +1,5 @@
 package com.deepthinking.strategy;
 
-import com.google.common.collect.Lists;
 import lombok.Getter;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
@@ -8,10 +7,7 @@ import org.ta4j.core.indicators.helpers.TypicalPriceIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
 import org.ta4j.core.num.Num;
 
-import java.util.List;
-
 import static com.deepthinking.strategy.StrategyUtils.*;
-import static net.sf.jsqlparser.parser.feature.Feature.values;
 
 /**
  * MFI 资金流量指数（Money Flow Index），是一种类似于RSI的指标，但使用成交量和价格来测量买入和卖出压力。MFI的计算公式如下：

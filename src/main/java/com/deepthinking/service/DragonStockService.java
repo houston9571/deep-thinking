@@ -1,6 +1,5 @@
 package com.deepthinking.service;
 
-import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.vo.DragonDetailPartner;
 import com.deepthinking.mysql.vo.DragonDetailStockKline;
 
@@ -14,6 +13,8 @@ public interface DragonStockService {
 
     List<DragonDetailPartner> queryDragonPartnerDetail(String partnerCode);
 
-    Result<Integer> syncDragonStockList(String date);
+    Long countDragonStock();
+
+    Integer syncDragonStockList(String date);
 
 }

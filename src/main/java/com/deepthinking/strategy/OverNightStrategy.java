@@ -1,15 +1,11 @@
 package com.deepthinking.strategy;
 
-import cn.hutool.core.lang.hash.Hash;
-import com.deepthinking.common.constant.Constants;
 import com.deepthinking.common.utils.StringUtil;
-import com.deepthinking.strategy.StrategyUtils.*;
 import com.deepthinking.strategy.signal.DivergenceSignal;
 import com.deepthinking.strategy.signal.ResonanceSignal;
 import com.deepthinking.strategy.signal.VolumeAndPriceSignal;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.num.Num;
@@ -21,7 +17,6 @@ import java.util.List;
 import static cn.hutool.core.text.StrPool.COMMA;
 import static com.deepthinking.common.constant.Constants.HASH;
 import static com.deepthinking.strategy.StrategyUtils.*;
-import static com.deepthinking.strategy.StrategyUtils.NUM_80;
 
 /**
  * 超短线实战铁律
@@ -206,29 +201,29 @@ public class OverNightStrategy {
                         // 进阶过滤 2: 实体力度
                         if (priceChangePercent > 0.5) { // 1分钟线阈值，5分钟线可设为1.0
                             score += 2;
-                            reasons.add("✅K线实体饱满(买盘强劲)");
+                            reasons.add("K线实体饱满(买盘强劲)");
                         } else {
                             reasons.add("⚠️K线实体较小(动能一般)");
                         }
                         // 进阶过滤 3: 位置判断 (突破 vs 高位)
                         if (currClose > bollInd.getUpper().doubleValue() || currClose > prevHigh) {
                             score += 2;
-                            reasons.add("🚀关键位置突破(突破BOLL上轨或前高)");
+                            reasons.add("关键位置突破(突破BOLL上轨或前高)");
                         }
-                        if (bias.doubleValue() > 0.03) {      // 乖离率>3%
+                        if (bias.doubleValue() > 3) {      // 乖离率>3%
                             score -= 1;
                             reasons.add("⚠️乖离率过大3%，谨防冲高回落");
                         }
                         if (obvmaInd.isHighest()) {
                             score += 1;
-                            reasons.add("🚀OBV同步创新高");
+                            reasons.add("OBV同步创新高");
                         }
 
                         // 最终决策
                         if (score >= 4) {
                             signalLevel = SignalLevel.HIGHEST;
                             signalTpye = SignalType.BUY;
-                            result = "✅有效量增价升，主力真金白银进攻，可跟随！";
+                            result = "🚀有效量增价升，主力真金白银进攻，可跟随！";
                         } else if (score == 3) {
                             signalLevel = SignalLevel.HIGH;
                             signalTpye = SignalType.BUY;
@@ -300,7 +295,7 @@ public class OverNightStrategy {
             if (isPriceUp) {      // ⚠️ 量缩价升 减仓/警戒 可能是主力高度控盘、锁仓拉升的“黄金信号”，也可能是买盘枯竭、诱多出货的“死亡陷阱”。
                 boolean hasTopDivergence = divergenceSignal.getDivergenceType() == DivergenceType.TOP;
                 boolean isNewHigh = currHigh >= highest.doubleValue();
-                boolean isHighPosition = bias.doubleValue() >= 0.08;  // 高位(乖离率>8%)
+                boolean isHighPosition = bias.doubleValue() >= 8;  // 高位(乖离率>8%)
                 result = "观察，等待放量确认";
                 if (isHighPosition && isNewHigh) {                  // 场景 A: 高位 + 创新高 + 背离/极度缩量 -> 危险诱多
                     signalLevel = SignalLevel.HIGH;
@@ -379,7 +374,7 @@ public class OverNightStrategy {
 
 
     /**
-     * 多因子共振信号
+     * 多因子共振信号 -> 日线指标 -- 定趋势，加股票池
      * 等待确认：背离信号出现后，不立即入场，等待价格突破背离前的趋势线、指标金叉/死叉或关键价位。
      * *
      * 趋势       EMA, MACD, ADX, CYC       确认当前是多头还是空头市场
@@ -387,10 +382,10 @@ public class OverNightStrategy {
      * 量能       VMACD, OBVMA              确认价格波动的资金含金量
      * 波动/支撑   BOLL, ATR                 确定止损空间与边界突破
      */
-    public static ResonanceSignal judgeResonance(int lastIndex, Num closePrice, DtEMAIndicator ema5Ind, DtEMAIndicator ema10Ind,
-                                                 DtMACDIndicator macdInd, DtADXIndicator adxInd, DtCYCIndicator cyc5Ind, DtCYCIndicator cyc13Ind, DtRSIIndicator rsiInd,
-                                                 DtKDJIndicator kdjInd, DtWRIndicator wrInd, DtCCIIndicator cciInd, DtVMACDIndicator vmacdInd,
-                                                 DtOBVMAIndicator obvmaInd, DtMFIIndicator mfiInd, DtATRIndicator atrInd, Num highest, DtBOLLIndicator bollInd) {
+    public static ResonanceSignal judgeResonanceDaily(int lastIndex, Num closePrice, DtEMAIndicator ema5Ind, DtEMAIndicator ema10Ind,
+                                                      DtMACDIndicator macdInd, DtADXIndicator adxInd, DtCYCIndicator cyc5Ind, DtCYCIndicator cyc13Ind, DtRSIIndicator rsiInd,
+                                                      DtKDJIndicator kdjInd, DtWRIndicator wrInd, DtCCIIndicator cciInd, DtVMACDIndicator vmacdInd,
+                                                      DtOBVMAIndicator obvmaInd, DtMFIIndicator mfiInd, DtBOLLIndicator bollInd, DtATRIndicator atrInd, Num highest) {
 
         Num ema5N = ema5Ind.getValue(lastIndex);
         Num ema10N = ema10Ind.getValue(lastIndex);
@@ -409,7 +404,7 @@ public class OverNightStrategy {
         // =====================  买入信号和评分 =====================
         // ===================== 趋势(EMA + MACD + ADX + CYC = 50分): 确认当前是多头还是空头市场  =====================
         // 1. EMA 多头排列
-        if (closePrice.isGreaterThan(ema5N) && ema5N.isGreaterThan(ema10N)) {
+        if (closePrice.isGreaterThan(ema5N) && ema5N.isGreaterThan(ema10N)) {                   // 价格站上 EMA5/EMA10 → 隔夜安全；
             buyScore += 10;
             buyReasons.add("EMA多头排列,短期强势(价格>EMA5>EMA10)");
         } else if (ema5N.isGreaterThan(ema10N) && ema5Ind.getValue(lastIndex - 1).isLessThanOrEqual(ema10Ind.getValue(lastIndex - 1))) {      // 金叉
@@ -417,7 +412,7 @@ public class OverNightStrategy {
             buyReasons.add("EMA金叉");   // 金叉: 当前 MA5 > MA10; 前一刻 MA5 <= MA10
         }
         // 2. MACD 零轴上金叉
-        if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS_RED) {   // 金叉且红柱放大
+        if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS_RED) {                       // 金叉且红柱放大
             buyScore += 20;
             buyReasons.add("MACD零轴上金叉且红柱放大(动能强)");
         } else if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS) {
@@ -425,7 +420,7 @@ public class OverNightStrategy {
             buyReasons.add("MACD零轴上金叉");
         }
         // 3. ADX (趋势滤网)：它是一个开关。如果 ADX < 20，无论 MACD 如何金叉，都视为“震荡行情”，共振信号无效。
-        if (adxInd.isStrong() && adxInd.getPlusDI().isGreaterThan(adxInd.getMinusDI())) {     //	ADX > 25（趋势强度足够），且 +DI > -DI
+        if (adxInd.isStrong() && adxInd.getPlusDI().isGreaterThan(adxInd.getMinusDI())) {       //	ADX > 25（趋势强度足够），且 +DI > -DI
             buyScore += 10;
             buyReasons.add("ADX趋势强(>25)且+DI>-DI");
         } else if (!adxInd.isStrong()) {
@@ -457,14 +452,14 @@ public class OverNightStrategy {
                 buyReasons.add("(KDJ金叉");
             }
         }
-        if (kdjInd.isSeriousOversold()) {                             //  KDJ超卖区（机会显现） 精准买卖点（J值比K/D更准）
+        if (kdjInd.isSeriousOversold()) {                             // J在50~80之间最稳； KDJ超卖区（机会显现） 精准买卖点（J值比K/D更准）
             buyScore += 10;
             buyReasons.add("(KDJ严重超卖，买入信号(J<10)");
         } else if (kdjInd.isOverbought()) {
             buyScore += 5;
             buyReasons.add("(KDJ超卖，买入信号(J<20)");
         }
-        // 3. WR ≥ 80 超卖区回升并突破-50, 辅助确认超卖（避免RSI假信号）
+        // 3. WR ≥ 80 超卖区回升并突破-50, 辅助确认超卖（避免RSI假信号） WR > 80 超卖 → 可低吸隔夜; WR从超卖区回升时配合OBV放量可加仓。
         if (wrInd.isOversold()) {
             buyScore += 10;
             buyReasons.add("WR超卖区，买入机会(≥80)");                  // 等待信号确认,股价重新站上日线均价线时，才是安全的低吸时点。
@@ -504,7 +499,7 @@ public class OverNightStrategy {
             buyScore += 15;
             buyReasons.add("BOLL突破下轨支撑(买入信号)");
         }
-        if (bollInd.isBullishBreakout()) {                              // BOLL "开口上涨"：中轨向上倾斜 + 布林带开口 15分
+        if (bollInd.isBullishBreakout()) {                              // BOLL "开口上涨"：中轨向上倾斜 + 布林带开口  -- 隔夜条件：价格在中轨之上，可持仓过夜，
             buyScore += 15;
             buyReasons.add("BOLL开口且中轨向上倾斜(买入信号)");
         }
@@ -518,7 +513,7 @@ public class OverNightStrategy {
         // =====================  卖出信号和评分 =====================
         // ===================== 趋势(EMA + MACD + ADX + CYC = 50分): 确认当前是多头还是空头市场  =====================
         // 1. EMA空头排列
-        if (closePrice.isLessThan(ema5N) && ema5N.isLessThan(ema10N)) {
+        if (closePrice.isLessThan(ema5N) && ema5N.isLessThan(ema10N)) {             //  -- 隔夜条件：跌破 EMA10 → 不隔夜。
             sellScore += 10;
             sellReasons.add("EMA空头排列,短期弱势(价格<EMA5<EMA10)");
         } else if (ema5N.isLessThan(ema10N) && ema5Ind.getValue(lastIndex - 1).isGreaterThan(ema10Ind.getValue(lastIndex - 1))) {      // 死叉
@@ -566,14 +561,14 @@ public class OverNightStrategy {
                 sellReasons.add("(KDJ死叉");
             }
         }
-        if (kdjInd.isSeriousOverbought()) {                            //   KDJ超买区（风险积聚）
+        if (kdjInd.isSeriousOverbought()) {                            //  -- 隔夜条件：J 在 50~80 之间最稳；J>90 不隔夜。   KDJ超买区（风险积聚）
             sellScore += 10;
             sellReasons.add("(KDJ严重超买，卖出信号(J>90)");
         } else if (kdjInd.isOverbought()) {
             sellScore += 5;
             sellReasons.add("(KDJ超买，卖出信号(J>80)");
         }
-        // 3. WR ≤ 20 超买区时，系统发出首个减仓信号。
+        // 3. WR ≤ 20 超买区时，系统发出首个减仓信号。 -- 隔夜条件：WR < 20 超买 → 不隔夜;
         if (wrInd.isOverbought()) {
             sellScore += 10;
             sellReasons.add("WR超买区，卖出信号(≤20)");
@@ -590,6 +585,211 @@ public class OverNightStrategy {
         if (mfiInd.isOversold()) {                                      // MFI < 20 超卖（可能反弹，考虑买入），做多信号权重 +1
             sellScore += 10;
             sellReasons.add("MFI超卖，可能反弹(买入信号)");
+        }
+
+        // ===================== 量能(VMACD + OBVMA = 25分) -- 量能确认, 确认价格波动的资金含金量 =====================
+        // 1. VMACD（成交量MACD）
+        if (vmacdStatus == DtVMACDIndicator.CrossStatus.DEATH_CROSS_GREEN) {
+            sellScore += 15;
+            sellReasons.add("VMACD零轴下死叉且绿柱放大(缩量)");
+        } else if (vmacdStatus == DtVMACDIndicator.CrossStatus.DEATH_CROSS) {
+            sellScore += 10;
+            sellReasons.add("VMACD零轴下死叉(缩量)");
+        }
+        // 2. OBVMA 能量潮均线
+        if (obvStatus == DtOBVMAIndicator.CrossStatus.DEATH_CROSS) {
+            sellScore += 10;
+            sellReasons.add("OBV死叉 资金流出(卖出信号)");
+        }
+
+        // ===================== 波动/支撑(BOLL + ATR = 50分) -- 波动爆发, 确定止损空间与边界突破 =====================
+        // 1. BOLL 突破上轨压力    -- 短线止盈离场点
+        if (bollInd.isBreakoutUp()) {
+            sellScore += 10;
+            sellReasons.add("BOLL突破上轨(卖出信号)");
+        }
+        if (bollInd.isConsolidation()) {                                //  BOLL "收口盘整"：布林带收口 + 中轨走平或下倾  若跌破中轨则需离场
+            sellScore += 10;
+            sellReasons.add("BOLL开口收窄且中轨走平或下倾(卖出信号)");
+        }
+        // 2. ATR 超短线止损, 极端的市场情绪 ATR吊灯止损
+        if (atrInd.volumeWarn() && closePrice.isLessThan(ema5N)) {      // MTR > 3 * ATR 情绪极值/变盘预警, 风险极高, 减仓、停止开仓、收紧止损
+            sellScore += 15;
+            sellReasons.add("ATR空头极端,利空出尽(MTR>3*ATR)");
+        } else if (atrInd.volumeWarn()) {
+            sellScore += 10;
+            sellReasons.add("ATR变盘预警(MTR>3*ATR)");
+        }
+        // ATR吊灯止损 卖出规则：当前收盘价跌破止损线 close < (20日最高价 - 2.5 * ATR)
+        if (closePrice.isLessThan(highest.minus(atrInd.getAtr().multipliedBy(numOf(2.5))))) {
+            sellScore += 15;
+            sellReasons.add("ATR跌破止损线，强力卖出(吊灯止损)");
+        }
+
+        return ResonanceSignal.builder()
+                .buyScore(buyScore / 2)                                 // 总分200分，换算成100分
+                .buyReason(StringUtil.joinWithIndex(HASH, buyReasons))
+                .sellScore(sellScore / 2)                               // 总分200分，换算成100分
+                .sellReason(StringUtil.joinWithIndex(HASH, sellReasons))
+                .build();
+    }
+
+
+    /**
+     * 多因子共振信号 -> Kline指标(1分钟) -- 确定买卖点
+     * *
+     * 趋势       EMA, MACD       确认当前是多头还是空头市场
+     * 动能       RSI, KDJ, WR    寻找超买超卖后的反转或爆发点
+     * 量能       VMACD, OBVMA    确认价格波动的资金含金量
+     * 波动/支撑   BOLL            确定止损空间与边界突破
+     */
+    public static ResonanceSignal judgeResonanceMinute(int lastIndex, Num closePrice, DtEMAIndicator ema5Ind, DtEMAIndicator ema10Ind,
+                                                       DtMACDIndicator macdInd, DtRSIIndicator rsiInd, DtKDJIndicator kdjInd, DtWRIndicator wrInd, DtVMACDIndicator vmacdInd,
+                                                       DtOBVMAIndicator obvmaInd, DtBOLLIndicator bollInd, DtATRIndicator atrInd, Num highest) {
+
+        Num ema5N = ema5Ind.getValue(lastIndex);
+        Num ema10N = ema10Ind.getValue(lastIndex);
+
+        DtMACDIndicator.CrossStatus macdStatus = macdInd.getCrossStatus();
+        DtKDJIndicator.CrossStatus kdjStatus = kdjInd.getCrossStatus();
+        DtVMACDIndicator.CrossStatus vmacdStatus = vmacdInd.getCrossStatus();
+        DtOBVMAIndicator.CrossStatus obvStatus = obvmaInd.getCrossStatus();
+
+        double buyScore = 0, sellScore = 0;
+        List<String> buyReasons = new ArrayList<>();
+        List<String> sellReasons = new ArrayList<>();
+
+        // =====================  买入信号和评分 =====================
+        // ===================== 趋势(EMA + MACD = 30分): 确认当前是多头还是空头市场  =====================
+        // 1. EMA 多头排列
+        if (closePrice.isGreaterThan(ema5N) && ema5N.isGreaterThan(ema10N)) {
+            buyScore += 10;
+            buyReasons.add("EMA多头排列,短期强势(价格>EMA5>EMA10)");
+        } else if (ema5N.isGreaterThan(ema10N) && ema5Ind.getValue(lastIndex - 1).isLessThanOrEqual(ema10Ind.getValue(lastIndex - 1))) {      // 金叉
+            buyScore += 5;
+            buyReasons.add("EMA金叉");   // 金叉: 当前 MA5 > MA10; 前一刻 MA5 <= MA10
+        }
+        // 2. MACD 零轴上金叉
+        if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS_RED) {   // 金叉且红柱放大
+            buyScore += 20;
+            buyReasons.add("MACD零轴上金叉且红柱放大(动能强)");
+        } else if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS) {
+            buyScore += 10;
+            buyReasons.add("MACD零轴上金叉");
+        }
+
+        // ===================== 动能(RSI + KDJ + WR = 50分) -- 灵敏择时, 寻找超买超卖后的反转或爆发点 =====================
+        // 1. RSI 在50~70之间最强
+        if (rsiInd.isSeriousOversold()) {     // 向上反转信号
+            buyScore += 20;
+            buyReasons.add("RSI严重超卖，短线反弹(≤20)");
+        } else if (rsiInd.isOversold()) {     // 向上反转信号
+            buyScore += 10;
+            buyReasons.add("RSI超卖(<30)");
+        }
+        // 2. KDJ 对短线拐点极其灵敏
+        if (kdjStatus == DtKDJIndicator.CrossStatus.GOLDEN_CROSS) {   // 金叉
+            if (kdjInd.isLowK() || kdjInd.isLowD()) {
+                buyScore += 10;
+                buyReasons.add("(KDJ低位金叉，强烈买入信号(K<20)");       // 低位金叉（K<20）：代表价格超跌后的动能反转，此时买入信号最为准确。
+            } else {
+                buyScore += 5;
+                buyReasons.add("(KDJ金叉");
+            }
+        }
+        if (kdjInd.isSeriousOversold()) {                             //  KDJ超卖区（机会显现） 精准买卖点（J值比K/D更准）
+            buyScore += 10;
+            buyReasons.add("(KDJ严重超卖，买入信号(J<10)");
+        } else if (kdjInd.isOverbought()) {
+            buyScore += 5;
+            buyReasons.add("(KDJ超卖，买入信号(J<20)");
+        }
+        // 3. WR ≥ 80 超卖区回升并突破-50, 辅助确认超卖（避免RSI假信号）
+        if (wrInd.isOversold()) {
+            buyScore += 10;
+            buyReasons.add("WR超卖区，买入机会(≥80)");                  // 等待信号确认,股价重新站上日线均价线时，才是安全的低吸时点。
+        }
+
+        // ===================== 量能(VMACD + OBVMA = 30分) -- 量能确认, 确认价格波动的资金含金量 =====================
+        // 1. VMACD 量能验证真伪关键   -- 隔夜条件：VMACD 红柱 → 量价配合  15分
+        if (vmacdStatus == DtVMACDIndicator.CrossStatus.GOLDEN_CROSS_RED) {   // 金叉且红柱放大
+            buyScore += 20;
+            buyReasons.add("VMACD零轴上金叉且红柱放大(放量)");
+        } else if (vmacdStatus == DtVMACDIndicator.CrossStatus.GOLDEN_CROSS) {
+            buyScore += 10;
+            buyReasons.add("VMACD零轴上金叉(放量)");
+        }
+        // 2. OBVMA 能量潮均线 -- 隔夜条件：OBV > OBV_MA5  10分
+        if (obvStatus == DtOBVMAIndicator.CrossStatus.GOLDEN_CROSS) {
+            buyScore += 10;
+            buyReasons.add("OBV金叉，资金流入(买入信号)");
+        }
+
+        // ===================== 波动/支撑(BOLL + ATR = 40分) -- 波动爆发, 确定止损空间与边界突破 =====================
+        // 1. BOLL 突破下轨支撑 15分
+        if (bollInd.isBreakoutDown()) {
+            buyScore += 15;
+            buyReasons.add("BOLL突破下轨支撑(买入信号)");
+        }
+        if (bollInd.isBullishBreakout()) {                              // BOLL "开口上涨"：中轨向上倾斜 + 布林带开口 15分
+            buyScore += 15;
+            buyReasons.add("BOLL开口且中轨向上倾斜(买入信号)");
+        }
+        // 2. ATR 超短线止损, 动力确认: MTR>1.5*ATR（波动扩张）趋势加速/异动突破  确认方向后加仓
+        if (atrInd.volumeConfirm() && closePrice.isGreaterThan(ema5N)) { // 价格上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
+            buyScore += 10;
+            buyReasons.add("ATR波动扩张，价格上升且MTR>1.5*ATR");
+        }
+
+        // =====================  卖出信号和评分 =====================
+        // ===================== 趋势(EMA + MACD = 30分): 确认当前是多头还是空头市场  =====================
+        // 1. EMA空头排列
+        if (closePrice.isLessThan(ema5N) && ema5N.isLessThan(ema10N)) {
+            sellScore += 10;
+            sellReasons.add("EMA空头排列,短期弱势(价格<EMA5<EMA10)");
+        } else if (ema5N.isLessThan(ema10N) && ema5Ind.getValue(lastIndex - 1).isGreaterThan(ema10Ind.getValue(lastIndex - 1))) {      // 死叉
+            sellScore += 5;
+            sellReasons.add("EMA死叉");
+        }
+        // 2. MACD 零轴下死叉
+        if (macdStatus == DtMACDIndicator.CrossStatus.DEATH_CROSS_GREEN) {          // 死叉且绿柱放大
+            sellScore += 20;
+            sellReasons.add("MACD零轴下死叉且绿柱放大(动能弱)");
+        } else if (macdStatus == DtMACDIndicator.CrossStatus.DEATH_CROSS) {
+            sellScore += 10;
+            sellReasons.add("MACD零轴下死叉");
+        }
+
+        // ===================== 动能(RSI + KDJ + WR = 45分) -- 灵敏择时, 寻找超买超卖后的反转或爆发点 =====================
+        // 1. RSI -- 隔夜条件：RSI6 在 50~70 之间最强
+        if (rsiInd.isSeriousOverbought()) {        // 向下反转信号
+            sellScore += 15;
+            sellReasons.add("RSI严重超买，不隔夜(≥80)");
+        } else if (rsiInd.isOverbought()) {         // 向下反转信号
+            sellScore += 10;
+            sellReasons.add("RSI超买(>70)");
+        }
+        // 2. KDJ高位死叉
+        if (kdjStatus == DtKDJIndicator.CrossStatus.DEATH_CROSS) {    // 死叉
+            if (kdjInd.isHighK() || kdjInd.isHighD()) {
+                sellScore += 10;
+                sellReasons.add("(KDJ高位死叉，强烈卖出信号(K>80)");
+            } else {
+                sellScore += 5;
+                sellReasons.add("(KDJ死叉");
+            }
+        }
+        if (kdjInd.isSeriousOverbought()) {                            //   KDJ超买区（风险积聚）
+            sellScore += 10;
+            sellReasons.add("(KDJ严重超买，卖出信号(J>90)");
+        } else if (kdjInd.isOverbought()) {
+            sellScore += 5;
+            sellReasons.add("(KDJ超买，卖出信号(J>80)");
+        }
+        // 3. WR ≤ 20 超买区时，系统发出首个减仓信号。
+        if (wrInd.isOverbought()) {
+            sellScore += 10;
+            sellReasons.add("WR超买区，卖出信号(≤20)");
         }
 
         // ===================== 量能(VMACD + OBVMA = 25分) -- 量能确认, 确认价格波动的资金含金量 =====================
@@ -632,7 +832,7 @@ public class OverNightStrategy {
         }
 
         return ResonanceSignal.builder()
-                .buyScore(buyScore / 2)                                 // 总分200分，换算成100分
+                .buyScore(buyScore * 100 / 150)                         // 总分140分，换算成100分
                 .buyReason(StringUtil.joinWithIndex(HASH, buyReasons))
                 .sellScore(sellScore / 2)                               // 总分200分，换算成100分
                 .sellReason(StringUtil.joinWithIndex(HASH, sellReasons))

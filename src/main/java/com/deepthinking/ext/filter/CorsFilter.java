@@ -2,8 +2,6 @@ package com.deepthinking.ext.filter;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
-import com.deepthinking.common.utils.IPUtils;
-import com.deepthinking.common.utils.StringUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 import static org.springframework.http.HttpHeaders.*;

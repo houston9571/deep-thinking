@@ -1,10 +1,9 @@
 package com.deepthinking.service;
 
-import com.deepthinking.ext.base.Result;
-
 public interface DragonDeptService {
 
+    Long countDragonDept();
 
-    Result<Integer> syncDragonDeptList(String date);
+    Integer syncDragonDeptList(String date);
 
 }

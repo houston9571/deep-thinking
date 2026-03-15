@@ -5,7 +5,6 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyConceptApi;
-import com.deepthinking.common.constant.MarketType;
 import com.deepthinking.common.utils.DateUtils;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.ConceptDelay;
@@ -93,18 +92,17 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
             }
             count += array.size();
         } while (count < top);
+        saveOrUpdateBatch(list, new String[]{"concept_code", "trade_date"});
         log.info(">>>>>syncConceptTradeList finished total:{} list:{} ", total, list.size());
 
-        saveOrUpdateBatch(list, new String[]{"concept_code", "trade_date"});
-
         // 排名前20的概念，股票加入股票池
-        int max = Math.min(20, list.size());
-        Map<String, StockPool> map = Maps.newHashMap();
-        for (int i = 0; i < max; i++) {
-            syncConceptStocks(list.get(i), map);
-        }
-        log.info(">>>>>syncConceptStocks finished stock_count:{} ", map.size());
-        stockPoolService.addStockPools(map);
+//        int max = Math.min(20, list.size());
+//        Map<String, StockPool> map = Maps.newHashMap();
+//        for (int i = 0; i < max; i++) {
+//            syncConceptStocks(list.get(i), map);
+//        }
+//        log.info(">>>>>syncConceptStocks finished stock_count:{} ", map.size());
+//        stockPoolService.addStockPools(map);
 
     }
 

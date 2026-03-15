@@ -1,6 +1,7 @@
 package com.deepthinking.strategy;
 
 
+import lombok.Getter;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.*;
@@ -22,6 +23,7 @@ public class DtWRIndicator extends CachedIndicator<Num> {
     private final ClosePriceIndicator closePrice;
     private final int barCount; // WR 周期 N
     private final int endIndex;
+    @Getter
     private Num wr;
 
     public DtWRIndicator(BarSeries series, int n) {

@@ -29,11 +29,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.deepthinking.common.constant.Constants.*;
-import static com.deepthinking.common.constant.MarketType.*;
-import static com.deepthinking.common.enums.ErrorCode.*;
+import static com.deepthinking.common.constant.MarketType.getMarket;
+import static com.deepthinking.common.constant.MarketType.stockCodeMap;
+import static com.deepthinking.common.enums.ErrorCode.NOT_GET_PAGE_ERROR;
 
 @Slf4j
 @Service
@@ -56,7 +56,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
 
 
 
-    @Cached(name = CACHE_KEY, key = "#stockCode", expire = 7, timeUnit = TimeUnit.DAYS)
+    @Cached(name = CACHE_KEY, key = "#stockCode", expire = DAYS_1)
     public StockInfo getStockInfo(String stockCode) {
         return findOne(StockInfo.builder().stockCode(stockCode).build());
     }
@@ -69,6 +69,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
             if (MarketType.contains(daily.getStockCode(), daily.getStockName())) {
                 Result<StockInfo> result = syncStockInfo(daily.getStockCode());
                 if (result.isSuccess()) {
+                    RedisUtils.delete(CACHE_KEY + daily.getStockCode());
                     syncStockConceptList(daily.getStockCode());
                 }
             }
@@ -81,6 +82,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
             if (MarketType.contains(daily.getStockCode(), daily.getStockName())) {
                 Result<StockInfo> result = syncStockInfo(daily.getStockCode());
                 if (result.isSuccess()) {
+                    RedisUtils.delete(CACHE_KEY + daily.getStockCode());
                     syncStockConceptList(daily.getStockCode());
                 }
             }

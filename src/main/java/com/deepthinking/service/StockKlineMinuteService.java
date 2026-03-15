@@ -8,8 +8,9 @@ import com.deepthinking.mysql.entity.StockKlineMinute;
 public interface StockKlineMinuteService extends MybatisBaseService<StockKlineMinute> {
 
 
-    Result<Void> syncStockKlineMinute(String stockCode);
+    Integer syncStockKlineMinute();
 
+    void syncStockKlineMinute(String stockCode);
 
     Result<JSONObject> getFirstRequest2Data(String code);
 

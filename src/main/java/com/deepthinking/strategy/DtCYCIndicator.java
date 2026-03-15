@@ -2,7 +2,7 @@ package com.deepthinking.strategy;
 
 
 import lombok.Getter;
-import org.ta4j.core.*;
+import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.TypicalPriceIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;

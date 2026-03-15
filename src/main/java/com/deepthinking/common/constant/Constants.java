@@ -65,11 +65,17 @@ public interface Constants {
 
 
 
-    int MINS_3 = 3 * 60;
+    int MINS_1 = 60;
 
-    int MINS_29 = 29 * 60;
+    int MINS_3 = 3 * MINS_1;
 
-    int MINS_30 = 30 * 60;
+    int MINS_30 = 30 * MINS_1;
+
+    int HOUR_1 = 60 * MINS_1;
+
+    int DAYS_1 = 24 * HOUR_1;
+
+    int DAYS_7 = 7 * DAYS_1;
 
     long YI = 1_0000_0000L;
 

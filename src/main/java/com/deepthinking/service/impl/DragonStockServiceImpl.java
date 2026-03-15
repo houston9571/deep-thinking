@@ -8,7 +8,6 @@ import com.deepthinking.client.EastMoneyDragonApi;
 import com.deepthinking.common.constant.MarketType;
 import com.deepthinking.common.thread.Threads;
 import com.deepthinking.common.utils.NumberUtils;
-import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.DragonStock;
 import com.deepthinking.mysql.entity.StockKlineDaily;
@@ -26,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,10 +93,15 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
         return new ArrayList<>(map.values());
     }
 
+
+    public Long countDragonStock() {
+        return count(DragonStock.builder().tradeDate(LocalDate.now()).build());
+    }
+
     /**
      * 龙虎榜个股列表
      */
-    public Result<Integer> syncDragonStockList(String date) {
+    public Integer syncDragonStockList(String date) {
         int total = 0, pageNum = 0, pageSize = 100;
         Map<String, DragonStock> map = Maps.newHashMap();
         JSONArray data = new JSONArray();
@@ -165,7 +170,7 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
                 cc = dragonStockDetailService.syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
             }
         }
-        return Result.success(list.size());
+        return list.size();
     }
 
     private JSONArray syncDragonStockList(String date, int pageNum, int pageSize) {

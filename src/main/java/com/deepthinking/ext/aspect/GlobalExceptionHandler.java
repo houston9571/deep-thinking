@@ -5,7 +5,6 @@ import com.deepthinking.common.exception.ParamValidatorException;
 import com.deepthinking.common.exception.ServiceException;
 import com.deepthinking.ext.base.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -27,7 +27,6 @@ import static com.deepthinking.common.enums.ErrorCode.*;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
 
 
     /**
@@ -44,6 +43,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
     public Result<Void> handleException(HttpRequestMethodNotSupportedException e) {
         return loggingError(Result.fail(REQUEST_UNSUPPORTED));
+    }
+
+    @ResponseBody
+    @ExceptionHandler({NoResourceFoundException.class})
+    public Result<Void> handleException(NoResourceFoundException e) {
+        return loggingError(Result.fail(NO_RESOURCE_FOUND, e.getMessage()));
     }
 
     @ResponseBody
@@ -102,7 +107,7 @@ public class GlobalExceptionHandler {
         return loggingError(Result.fail(SYSTEM_ERROR));
     }
 
-    private Result<Void> loggingError(Result<Void> result){
+    private Result<Void> loggingError(Result<Void> result) {
 //        apiParamAccessor.saveSysLog(result);
         return result;
     }

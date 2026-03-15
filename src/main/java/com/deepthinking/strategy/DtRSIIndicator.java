@@ -1,5 +1,6 @@
 package com.deepthinking.strategy;
 
+import com.google.common.collect.Lists;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
@@ -8,7 +9,6 @@ import org.ta4j.core.num.Num;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.deepthinking.common.constant.Constants.HUNDRED;
@@ -25,14 +25,13 @@ import static com.deepthinking.strategy.StrategyUtils.*;
 public class DtRSIIndicator extends CachedIndicator<Num> {
     // 修正指数，k < 1 会将 RSI 向 50 拉近
     private static final double RS_EXPONENT = 0.999;
-    private List<Num> rsiValues;
+    private final List<Num> rsiValues = Lists.newArrayList();
 
     public DtRSIIndicator(BarSeries series, int barCount) {
         super(series);
-        int seriesLength = getBarSeries().getBarCount();
+        int endIndex = series.getEndIndex();
         ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
-        rsiValues = new ArrayList<>(seriesLength);
-        for (int i = 0; i < seriesLength; i++) {
+        for (int i = 0; i <= endIndex; i++) {
             rsiValues.add(null);
         }
 
@@ -40,7 +39,7 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
         BigDecimal avgGain = null;
         BigDecimal avgLoss = null;
 
-        for (int i = 1; i < seriesLength; i++) { // 从 1 开始，因为需要前一天的数据
+        for (int i = 1; i <= endIndex; i++) { // 从 1 开始，因为需要前一天的数据
             Num currentClose = closePrice.getValue(i);
             Num prevClose = closePrice.getValue(i - 1);
             Num delta = currentClose.minus(prevClose);
@@ -99,6 +98,9 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
         }
     }
 
+    public Num getRSI() {
+        return rsiValues.getLast();
+    }
 
     @Override
     protected Num calculate(int index) {
@@ -115,32 +117,31 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
      * 判断 RSI 是否处于超买状态 (通常 > 70)
      */
     public boolean isOverbought() {
-        return rsiValues.getLast().isGreaterThan(NUM_70);
+        return getRSI().isGreaterThan(NUM_70);
     }
+
     public boolean isSeriousOverbought() {
-        return rsiValues.getLast().isGreaterThanOrEqual(NUM_80);
+        return getRSI().isGreaterThanOrEqual(NUM_80);
     }
 
     /**
      * 判断 RSI 是否处于超卖状态 (通常 < 30)
      */
     public boolean isOversold() {
-        return rsiValues.getLast().isLessThan(NUM_30);
+        return getRSI().isLessThan(NUM_30);
     }
 
     public boolean isSeriousOversold() {
-        return rsiValues.getLast().isLessThanOrEqual(NUM_20);
+        return getRSI().isLessThanOrEqual(NUM_20);
     }
-
-
 
 
     public boolean isHighest() {
-        return isHighestNum(rsiValues, rsiValues.getLast());
+        return isHighestNum(rsiValues, getRSI());
     }
 
     public boolean isLowest() {
-        return isLowestNum(rsiValues, rsiValues.getLast());
+        return isLowestNum(rsiValues, getRSI());
     }
 
     /**
@@ -149,7 +150,7 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
     public boolean isCrossUp(double level) {
 
         Num prev = rsiValues.get(rsiValues.size() - 2);
-        Num curr = rsiValues.getLast();
+        Num curr = getRSI();
         Num levelNum = numOf(level);
         if (prev == null || curr == null) return false;
         return prev.isLessThanOrEqual(levelNum) && curr.isGreaterThan(levelNum);
@@ -161,7 +162,7 @@ public class DtRSIIndicator extends CachedIndicator<Num> {
     public boolean isCrossDown(double level) {
 
         Num prev = rsiValues.get(rsiValues.size() - 2);
-        Num curr = rsiValues.getLast();
+        Num curr = getRSI();
         Num levelNum = numOf(level);
         if (prev == null || curr == null) return false;
         return prev.isGreaterThanOrEqual(levelNum) && curr.isLessThan(levelNum);

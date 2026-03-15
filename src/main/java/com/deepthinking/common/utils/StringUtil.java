@@ -1,6 +1,6 @@
 package com.deepthinking.common.utils;
 
-import org.apache.commons.lang3.StringUtils;
+import cn.hutool.core.util.StrUtil;
 import org.springframework.util.CollectionUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import cn.hutool.core.util.StrUtil;
 
 public class StringUtil extends StrUtil {
 

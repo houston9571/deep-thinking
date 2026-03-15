@@ -1,6 +1,5 @@
 package com.deepthinking;
 
-import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
 import com.alicp.jetcache.anno.config.EnableMethodCache;
 import com.deepthinking.ext.filter.CorsFilter;
 import com.dtflys.forest.springboot.annotation.ForestScan;
@@ -53,7 +52,7 @@ public class Application {
         registration.setFilter(corsFilter);
         registration.addUrlPatterns("*");
         registration.setName("CorsFilter");
-        registration.setOrder(1);
+        registration.setOrder(0);
         return registration;
     }
 

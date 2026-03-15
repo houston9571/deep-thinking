@@ -26,7 +26,7 @@ spring:
           time-between-eviction-runs: 100ms # 空闲连接回收间隔
 
 jetcache:
-  statIntervalMinutes: 15         # 统计信息输出间隔，0表示不输出
+  statIntervalMinutes: 60         # 统计信息输出间隔，0表示不输出
   areaInCacheName: false          # 是否将area名称加入缓存key前缀
   local:
     default:

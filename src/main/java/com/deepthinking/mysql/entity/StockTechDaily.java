@@ -97,21 +97,16 @@ public class StockTechDaily extends BaseEntity {
     // MFI(8)
     private BigDecimal mfi;
 
+    private BigDecimal avgCost;             // 筹码平均成本（成交量加权）(30日)
+    private BigDecimal costConcentration;   // 筹码集中度（%，值越小越集中）
 
-    // 筹码平均成本（成交量加权）(30日)
-    private BigDecimal avgCost;
-    // 筹码集中度（%，值越小越集中）
-    private BigDecimal costConcentration;
-
-    // 背离类型：0=无背离,1=MACD顶背离,2=MACD底背离,3=RSI顶背离,4=RSI底背离,5=KDJ顶背离,6=KDJ底背离,7=CCI顶背离,8=CCI底背离
     private StrategyUtils.DivergenceType divergenceType;
-    // 背离强度：0~5（值越大背离越明显）
     private Short divergenceStrength;
     private String divergenceResult;
 
-    private double buyScore;
+    private Double buyScore;
     private String buyReason;
-    private double sellScore;
+    private Double sellScore;
     private String sellReason;
 
 

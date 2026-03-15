@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.deepthinking.common.constant.MarketType.getTradeDateStr;
 import static com.dtflys.forest.backend.ContentType.APPLICATION_JSON;
 
 
@@ -45,7 +46,7 @@ public class StockRest {
     @PostMapping("")
     public PageResult<StockPool> stockList(@RequestBody PageInfo<StockInfo> pageInfo) {
         pageInfo.startPage();
-        List<StockPool> list = stockPoolService.queryStockPool();
+        List<StockPool> list = stockPoolService.queryStocks(getTradeDateStr());
         return PageResult.success(list);
     }
 

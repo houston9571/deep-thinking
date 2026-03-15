@@ -6,7 +6,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyDragonApi;
 import com.deepthinking.common.thread.Threads;
 import com.deepthinking.common.utils.NumberUtils;
-import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
 import com.deepthinking.mysql.entity.DragonDept;
 import com.deepthinking.mysql.entity.OrgDept;
@@ -20,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -38,11 +38,14 @@ public class DragonDeptServiceImpl extends MybatisBaseServiceImpl<DragonDeptMapp
 
     private final OrgDeptService orgDeptService;
 
+    public Long countDragonDept(){
+        return count(DragonDept.builder().tradeDate(LocalDate.now()).build());
+    }
 
     /**
      * 龙虎榜个股营业部列表
      */
-    public Result<Integer> syncDragonDeptList(String date) {
+    public Integer syncDragonDeptList(String date) {
         int total = 0, pageNum = 0, pageSize = 100;
         Set<OrgDept> orgDeptSet = Sets.newHashSet();
         ArrayList<DragonDept> list = Lists.newArrayList();
@@ -96,7 +99,7 @@ public class DragonDeptServiceImpl extends MybatisBaseServiceImpl<DragonDeptMapp
         } catch (Exception e) {
             log.error(">>>>>getDragonDeptList saveBatch error. {}", e.getMessage());
         }
-        return Result.success(list.size());
+        return list.size();
     }
 
     private JSONArray syncDragonDeptList(String date, int pageNum, int pageSize) {

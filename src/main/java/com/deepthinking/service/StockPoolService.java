@@ -1,20 +1,14 @@
 package com.deepthinking.service;
 
-import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.MybatisBaseService;
-import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.entity.StockPool;
 
 import java.util.List;
-import java.util.Map;
 
 public interface StockPoolService extends MybatisBaseService<StockPool> {
 
-    List<StockPool> queryStockPool();
+    List<StockPool> queryStocks(String tradeDate) ;
 
-    Result<Integer> syncStockCalcKlineIndicators();
+    Integer execStockPoolSelection(String tradeDate) ;
 
-    void addStockPools(Map<String, StockPool> map);
-
-    void addStockPools(List<StockKlineDaily> stockKlineDailyList);
 }
