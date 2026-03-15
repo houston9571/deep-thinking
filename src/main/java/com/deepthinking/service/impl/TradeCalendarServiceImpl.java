@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.deepthinking.common.constant.Constants.DISABLED;
 import static com.deepthinking.common.constant.Constants.ENABLE;
@@ -45,4 +46,7 @@ public class TradeCalendarServiceImpl extends MybatisBaseServiceImpl<TradeCalend
         return saveOrUpdateBatch(list, new String[]{"date"});
     }
 
+    public List<String> statStockKlineDaily(){
+        return tradeCalendarMapper.statStockKlineDaily();
+    }
 }

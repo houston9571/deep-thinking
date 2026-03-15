@@ -40,6 +40,10 @@ public class SyncTask {
 
     private final DragonStockService dragonStockService;
 
+    private final TradeCalendarService tradeCalendarService;
+
+
+
     @Scheduled(cron = "0 0/30 * * * ?")
     void systemInfo() {
         LinkedHashMap map = (LinkedHashMap) OSUtils.getSystemInfo().get("JVM");
@@ -47,6 +51,7 @@ public class SyncTask {
         log.info(" --> {}:{}", "MaxMemory", map.get("MaxMemory"));
         log.info(" --> {}:{}", "FreeMemory", map.get("FreeMemory"));
         log.info(" --> {}:{}", "RealUsage", map.get("RealUsage"));
+        log.info(" --> {}", tradeCalendarService.statStockKlineDaily());
     }
 
     /**************************** 股票行情 ***********************************/

@@ -20,9 +20,9 @@ spring:
       database: 0
       lettuce:
         pool:
-          max-active: 8          # 最大连接数
+          max-active: 16         # 最大连接数
           max-idle: 8            # 最大空闲连接
-          min-idle: 0            # 最小空闲连接
+          min-idle: 1            # 最小空闲连接
           time-between-eviction-runs: 100ms # 空闲连接回收间隔
 
 jetcache:
@@ -119,8 +119,8 @@ spring:
       auto-commit: true
       maximum-pool-size: 50
       minimum-idle: 5
-      idle-timeout: 600000                  # 10分钟, 空闲连接的最大存活时间（毫秒），超过该时间且未被使用则被回收, 只对超过 minimum-idle 的空闲连接生效
       connection-timeout: 30000             # 连接的超时时间（毫秒），即从连接池获取连接的等待时间
+      idle-timeout: 600000                  # 10分钟, 空闲连接的最大存活时间（毫秒），超过该时间且未被使用则被回收, 只对超过 minimum-idle 的空闲连接生效
       max-lifetime: 1800000                 # 30分钟（应小于数据库的 wait_timeout） 连接的最大生命周期（毫秒），无论是否空闲，到达时间后强制关闭
       keepalive-time: 300000                # 5分钟（HikariCP 2.6+ 支持，用于保持连接活跃）, 空闲连接测试的间隔
       connection-test-query: SELECT 1       # 连接池将向数据库发送一个测试查询以验证连接是否有效

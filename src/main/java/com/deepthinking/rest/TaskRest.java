@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 import static com.deepthinking.common.constant.MarketType.getTradeDateStr;
 import static com.deepthinking.common.enums.DateFormatEnum.DATE;
@@ -133,6 +135,10 @@ public class TaskRest {
         return Result.success(tradeCalendarService.genYearCalendar());
     }
 
+    @GetMapping("statStockKlineDaily")
+    public Result<List<String>> statStockKlineDaily() {
+        return Result.success(tradeCalendarService.statStockKlineDaily());
+    }
 
    /* @GetMapping("fundHoldInfo/{scode}")
     public JSONResult fundHoldInfo(@PathVariable String scode) {
