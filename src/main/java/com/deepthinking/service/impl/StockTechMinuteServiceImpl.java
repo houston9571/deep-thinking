@@ -39,8 +39,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static cn.hutool.core.text.StrPool.COMMA;
-import static com.deepthinking.common.constant.Constants.LABEL_DATA;
-import static com.deepthinking.common.constant.Constants.ZONE_ID;
+import static com.deepthinking.common.constant.Constants.*;
+import static com.deepthinking.common.constant.Constants.NO;
 import static com.deepthinking.common.constant.MarketType.getTradeDateStr;
 import static com.deepthinking.common.constant.StockConstants.KLINE_1MIN;
 import static com.deepthinking.strategy.OverNightStrategy.*;
@@ -294,6 +294,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
         DtATRIndicator atrInd = new DtATRIndicator(series, 7);
         tech.setMtr(atrInd.getMtr().bigDecimalValue());
         tech.setAtr(atrInd.getAtr().bigDecimalValue());
+        tech.setAtrStrong(atrInd.isAtrStrong() ? YES : NO);
 
 
         // ======================== 策略辅助 ======================== //
@@ -319,7 +320,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
         // ======================== 量价关系 ========================
         VolumeAndPriceSignal volumeAndPriceSignal = calcVolumeAndPrice(series, highest, lowest, ema5, ema10, bias, tech.getVolumeRatio(), obvmaInd, bollInd, dvg);
         tech.setSignalType(volumeAndPriceSignal.getSignalType());
-        tech.setSignalLevel(volumeAndPriceSignal.getSignalLevel());
+        tech.setSignalLevel(volumeAndPriceSignal.getSignalLevel().getLevel());
         tech.setSignalResult(volumeAndPriceSignal.getSignalResult());
 
         return tech;

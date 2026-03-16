@@ -84,19 +84,19 @@ public class MybatisBaseServiceImpl<M extends BaseMapper<P>, P extends BaseEntit
                 save(p);
                 if (++at % batchSize == 0) {
                     sqlSession.flushStatements();
-                    log.info(">>>>> saveBatch flushStatements index:{} ", at);
+                    log.info("saveBatch flushStatements index:{} ", at);
                 }
             } catch (Exception e) {
-                log.error(">>>>> saveBatch failed index:{} {} {}", at, p, e.getMessage());
+                log.error("saveBatch failed index:{} {} {}", at, p, e.getMessage());
             }
         }
         if (at % batchSize > 0) {
             sqlSession.flushStatements();
-            log.info(">>>>> saveBatch flushStatements index:{} ", at);
+            log.info("saveBatch flushStatements index:{} ", at);
         }
         sqlSession.commit();
         stopWatch.stop();
-        log.info(">>>>> saveBatch finished size:{} time:{}", at, DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
+        log.info("saveBatch finished size:{} time:{}", at, DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
         return at;
     }
 
@@ -123,19 +123,19 @@ public class MybatisBaseServiceImpl<M extends BaseMapper<P>, P extends BaseEntit
                 saveOrUpdate(p, columns);
                 if (++at % batchSize == 0) {
                     sqlSession.flushStatements();
-                    log.info(">>>>> updateBatch flushStatements index:{} ", at);
+                    log.info("saveOrUpdateBatch flushStatements index:{} ", at);
                 }
             } catch (Exception e) {
-                log.error(">>>>> updateBatch failed index:{} {} {}", at, p, e.getMessage());
+                log.error("saveOrUpdateBatch failed index:{} {} {}", at, p, e.getMessage());
             }
         }
         if (at % batchSize > 0) {
             sqlSession.flushStatements();
-            log.info(">>>>> updateBatch flushStatements index:{} ", at);
+            log.info("saveOrUpdateBatch flushStatements index:{} ", at);
         }
         sqlSession.commit();
         stopWatch.stop();
-        log.info(">>>>> updateBatch finished size:{} time:{}", at, DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
+        log.info("saveOrUpdateBatch finished size:{} time:{}", at, DateUtils.formatDateTime(stopWatch.getTotalTimeMillis()));
         return at;
     }
 

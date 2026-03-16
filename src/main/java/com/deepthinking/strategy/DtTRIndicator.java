@@ -7,7 +7,7 @@ import org.ta4j.core.indicators.helpers.HighPriceIndicator;
 import org.ta4j.core.indicators.helpers.LowPriceIndicator;
 import org.ta4j.core.num.Num;
 
-import static com.deepthinking.strategy.StrategyUtils.NUM_NAN;
+import static org.ta4j.core.num.NaN.NaN;
 
 
 /**
@@ -30,7 +30,7 @@ public class DtTRIndicator extends CachedIndicator<Num> {
     @Override
     protected Num calculate(int index) {
         if (index == 0) {  // 第一根 K 线无法计算 TR（需要前一日收盘价），返回 0 或 NaN
-            return NUM_NAN;
+            return  NaN;
         }
         Num high = highIndicator.getValue(index);
         Num low = lowIndicator.getValue(index);

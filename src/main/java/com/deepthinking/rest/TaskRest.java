@@ -48,7 +48,8 @@ public class TaskRest {
      */
     @GetMapping("stock/info")
     public Result<Integer> syncStockInfo() {
-        return stockInfoService.syncStockInfoAll();
+        stockInfoService.syncStockInfoAll();
+        return Result.success();
     }
 
     /**

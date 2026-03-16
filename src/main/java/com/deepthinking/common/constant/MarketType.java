@@ -57,10 +57,10 @@ public class MarketType {
     public static final String MARKET_SZ = "SZ", MARKET_SH = "SH", MARKET_BJ = "BJ", MARKET_HK = "HK";
     public static final String MARKET_CODE_SZ = "0", MARKET_CODE_SH = "1", MARKET_CODE_BJ = "2", MARKET_CODE_HK = "116";
 
-    public static final BigDecimal LIMIT_FIVE = BigDecimal.valueOf(0.05);
-    public static final BigDecimal LIMIT_TEN = BigDecimal.valueOf(0.1);
-    public static final BigDecimal LIMIT_TWENTY = BigDecimal.valueOf(0.2);
-    public static final BigDecimal LIMIT_THIRTY = BigDecimal.valueOf(0.3);
+    public static final BigDecimal LIMIT_FIVE = BigDecimal.valueOf(1.05);
+    public static final BigDecimal LIMIT_TEN = BigDecimal.valueOf(1.1);
+    public static final BigDecimal LIMIT_TWENTY = BigDecimal.valueOf(1.2);
+    public static final BigDecimal LIMIT_THIRTY = BigDecimal.valueOf(1.3);
 
 
     /**
@@ -98,6 +98,10 @@ public class MarketType {
 
     public static BigDecimal getChangeLimit(String stockCode) {
         return markets.get(stockCode.substring(0, 3)).getChangeLimits();
+    }
+
+    public static boolean isLimitUp(String stockCode, BigDecimal price, BigDecimal close) {
+        return price.compareTo(close.multiply(getChangeLimit(stockCode).subtract(BigDecimal.valueOf(0.02)))) >= 0;
     }
 
 

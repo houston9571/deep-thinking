@@ -33,15 +33,17 @@ public class StockTechDaily extends BaseEntity {
     @JSONField(format = "yyyy-MM-dd")
     private LocalDate tradeDate;
 
-    private StrategyUtils.SignalType signalType;
-    private StrategyUtils.SignalLevel signalLevel;
-    private String signalResult;
+    private Integer limitUpCount;
 
+    private BigDecimal price;
+
+    // ===================== 趋势(EMA + MACD + ADX + CYC) =====================
     // 超短线均线： 5/10/20
     private BigDecimal ema5;
     private BigDecimal ema10;
     private BigDecimal ema20;
-    private BigDecimal bias;       // 乖离率
+    // 乖离率
+    private BigDecimal bias;
 
     // MACD(5,13,2)
     private BigDecimal macdDif;
@@ -49,7 +51,15 @@ public class StockTechDaily extends BaseEntity {
     private BigDecimal macdBar;
     private DtMACDIndicator.CrossStatus macdStatus;
 
-    // 超短线RSI(6)
+    // ADX(8)
+    private BigDecimal adx;
+
+    // CYC(5,13,34)
+    private BigDecimal cyc5;
+    private BigDecimal cyc13;
+
+    // ===================== 动能(RSI + KDJ + WR + CCI + MFI)  =====================
+    // RSI(6)
     private BigDecimal rsi6;
 
     // KDJ(5,2,2)
@@ -58,16 +68,16 @@ public class StockTechDaily extends BaseEntity {
     private BigDecimal kdjJ;
     private DtKDJIndicator.CrossStatus kdjStatus;
 
-    // BOLL(10) 布林带状态：1=收口,2=开口,3=正常
-    private BigDecimal bollMid;
-    private BigDecimal bollUpper;
-    private BigDecimal bollLower;
-    private DtBOLLIndicator.MouthStatus bollMouthStatus;
-    private DtBOLLIndicator.MidTrend bollMidTrend;
-
     // WR(6)
     private BigDecimal wr6;
 
+    // CCI(8)
+    private BigDecimal cci;
+
+    // MFI(8)
+    private BigDecimal mfi;
+
+    // ===================== 量能(VMACD + OBVMA)  =====================
     // VMACD(5,13,1)
     private BigDecimal vmacdDif;
     private BigDecimal vmacdDea;
@@ -79,23 +89,18 @@ public class StockTechDaily extends BaseEntity {
     private Long obvMa5;
     private DtOBVMAIndicator.CrossStatus obvStatus;
 
+    // ===================== 波动/支撑(BOLL + ATR) =====================
+    // BOLL(10) 布林带状态：1=收口,2=开口,3=正常
+    private BigDecimal bollMid;
+    private BigDecimal bollUpper;
+    private BigDecimal bollLower;
+    private DtBOLLIndicator.MouthStatus bollMouthStatus;
+    private DtBOLLIndicator.MidTrend bollMidTrend;
+
     // ATR(6)
     private BigDecimal atr;
     private BigDecimal mtr;
-
-    // ADX(8)
-    private BigDecimal adx;
-
-    // CCI(8)
-    private BigDecimal cci;
-
-    // CYC(5,14,34)
-    private BigDecimal cyc5;
-    private BigDecimal cyc13;
-    private BigDecimal cyc34;
-
-    // MFI(8)
-    private BigDecimal mfi;
+    private Short atrStrong;
 
     private BigDecimal avgCost;             // 筹码平均成本（成交量加权）(30日)
     private BigDecimal costConcentration;   // 筹码集中度（%，值越小越集中）
@@ -109,6 +114,9 @@ public class StockTechDaily extends BaseEntity {
     private Double sellScore;
     private String sellReason;
 
+    private StrategyUtils.SignalType signalType;
+    private Short signalLevel;
+    private String signalResult;
 
 
 }

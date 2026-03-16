@@ -100,16 +100,20 @@ public class DtMACDIndicator extends CachedIndicator<Num> {
     }
 
 
+    /**
+     * 暂时先去掉零轴判断，线上很难出现这种情况，有时dif从很小的一个负数值向上的金叉
+     *
+     */
     public CrossStatus getCrossStatus() {
         Num dif = getDIF();
         Num dea = getDEA();
         Num prevDif = difValues.get(endIndex - 1);
         Num prevDea = deaValues.get(endIndex - 1);
-        if (dif.isPositive() && dif.isGreaterThan(dea) && prevDif.isLessThanOrEqual(prevDea)) {          // 零轴上金叉
+        if (dif.isGreaterThan(dea) && prevDif.isLessThanOrEqual(prevDea)) {          // 零轴上金叉 dif.isPositive() &&
             if (isRed() && isExpand())
                 return CrossStatus.GOLDEN_CROSS_RED;
             return CrossStatus.GOLDEN_CROSS;
-        } else if (dif.isNegative() && dif.isLessThan(dea) && prevDif.isGreaterThanOrEqual(prevDea)) {   // 零轴下死叉
+        } else if (dif.isLessThan(dea) && prevDif.isGreaterThanOrEqual(prevDea)) {   // 零轴下死叉 dif.isNegative() &&
             if (isGreen() && isShirk())
                 return CrossStatus.DEATH_CROSS_GREEN;
             return CrossStatus.DEATH_CROSS;

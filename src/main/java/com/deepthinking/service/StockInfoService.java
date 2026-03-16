@@ -8,7 +8,7 @@ public interface StockInfoService extends MybatisBaseService<StockInfo> {
 
     StockInfo getStockInfo(String stockCode);
 
-    Result<Integer> syncStockInfoAll() ;
+    Integer syncStockInfoAll() ;
 
     Result<StockInfo> syncStockInfo(String stockCode);
 

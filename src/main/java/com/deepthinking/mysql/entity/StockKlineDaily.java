@@ -51,7 +51,7 @@ public class StockKlineDaily extends BaseEntity {
      **************************/
 
     /**
-     * f2 最新价/100
+     * f2 最新价/100 今天收盘价
      */
     @JSONField(alternateNames = "f2", deserializeUsing = DivideBy100Reader.class)
     private BigDecimal price;
@@ -75,7 +75,7 @@ public class StockKlineDaily extends BaseEntity {
     private BigDecimal open;
 
     /**
-     * f18 昨收/100
+     * f18 昨收/100 昨天收盘价
      */
     @JSONField(alternateNames = "f18", deserializeUsing = DivideBy100Reader.class)
     private BigDecimal close;
@@ -143,6 +143,11 @@ public class StockKlineDaily extends BaseEntity {
      */
     @JSONField(alternateNames = "f35", deserializeUsing = NumberCheckReader.class, serializeUsing = CountUtilWriter.class)
     private Long sellVolume;
+
+    /**
+     * 外盘比 = 外盘 / (外盘 + 内盘) * 100
+     */
+    private BigDecimal buyVolumeRatio;
 
     /**
      * 委比（%）

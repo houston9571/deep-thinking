@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,6 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
     }
 
 
-
     @Cached(name = CACHE_KEY, key = "#tradeDate", expire = DAYS_1)
     public List<StockKlineDaily> getStockKlineDailyList(String tradeDate) {
         log.info(">>>>>getStockKlineDailyList 全量加载日线数据，未击中缓存");
@@ -77,10 +77,11 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
                 try {
                     StockKlineDaily daily = JSONObject.parseObject(array.getString(i), StockKlineDaily.class);
                     if (MarketType.contains(daily.getStockCode(), daily.getStockName())) {
-                        if (ObjectUtil.isNotEmpty(daily.getOpen())) {
-                            daily.setLimitUp(daily.getOpen().add(daily.getOpen().multiply(MarketType.getChangeLimit(daily.getStockCode()))));
-                            daily.setLimitDown(daily.getOpen().subtract(daily.getOpen().multiply(MarketType.getChangeLimit(daily.getStockCode()))));
+                        if (ObjectUtil.isNotEmpty(daily.getClose())) {      // 昨收*涨跌
+                            daily.setLimitUp(daily.getClose().multiply(MarketType.getChangeLimit(daily.getStockCode())));
+                            daily.setLimitDown(daily.getClose().multiply(MarketType.getChangeLimit(daily.getStockCode())));
                         }
+                        daily.setBuyVolumeRatio(BigDecimal.valueOf(daily.getBuyVolume() * 100).divide(BigDecimal.valueOf(daily.getBuyVolume() + daily.getSellVolume()), SCALE2, ROUND_MODE));
                         daily.setMainIn(daily.getSuperLargeIn() + daily.getLargeIn());
                         daily.setMainOut(daily.getSuperLargeOut() + daily.getLargeOut());
                         daily.setMainNetIn(daily.getSuperLargeNetIn() + daily.getLargeNetIn());

@@ -13,7 +13,7 @@ import static org.springframework.http.HttpHeaders.ETAG;
 @Slf4j
 public class ForestLogHandler extends DefaultLogHandler {
 
-    private String tag;
+    private String tag = IDUtils.uuid16();;
 
 
     @Override

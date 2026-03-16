@@ -39,9 +39,6 @@ public class DtMFIIndicator extends CachedIndicator<Num> {
     }
 
     private Num preCalculate(int index, int barCount) {
-        if (index < barCount) {
-            return NUM_NAN;
-        }
         // 计算周期内正负资金流之和
         Num positiveFlow = NUM_0;
         Num negativeFlow = NUM_0;

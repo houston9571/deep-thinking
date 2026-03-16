@@ -27,7 +27,8 @@ import org.ta4j.core.num.Num;
 import java.time.Duration;
 import java.util.List;
 
-import static com.deepthinking.common.constant.Constants.MINS_30;
+import static com.deepthinking.common.constant.Constants.*;
+import static com.deepthinking.common.constant.MarketType.isLimitUp;
 import static com.deepthinking.strategy.OverNightStrategy.*;
 
 @Slf4j
@@ -100,21 +101,27 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
      */
     private StockTechDaily calcIndicator(List<StockKlineDaily> list) {
         StockKlineDaily klineDaily = list.getLast();
-        BaseBarSeries series = new BaseBarSeriesBuilder().withName(klineDaily.getStockCode() + "_Daily").build();
-        for (StockKlineDaily t : list) {
+        String stockCode = klineDaily.getStockCode();
+        int limitUpCount = 0;
+        BaseBarSeries series = new BaseBarSeriesBuilder().withName(stockCode + "_Daily").build();
+        for (StockKlineDaily daily : list) {
             series.addBar(new BaseBar(Duration.ofDays(1), null, null,
-                    DecimalNum.valueOf(t.getOpen()),
-                    DecimalNum.valueOf(t.getHigh()),
-                    DecimalNum.valueOf(t.getLow()),
-                    DecimalNum.valueOf(t.getClose()),
-                    DecimalNum.valueOf(t.getVolume()),
-                    DecimalNum.valueOf(t.getAmount()),
+                    DecimalNum.valueOf(daily.getOpen()),
+                    DecimalNum.valueOf(daily.getHigh()),
+                    DecimalNum.valueOf(daily.getLow()),
+                    DecimalNum.valueOf(daily.getPrice()),           // 最新价才是当天的收盘价，close是昨天收盘价
+                    DecimalNum.valueOf(daily.getVolume()),
+                    DecimalNum.valueOf(daily.getAmount()),
                     1));
+            if (isLimitUp(stockCode, daily.getPrice(), daily.getClose())) {
+                limitUpCount++;
+            }
         }
         ClosePriceIndicator closePriceInd = new ClosePriceIndicator(series);
         VolumeIndicator volumeIndicator = new VolumeIndicator(series);
 
-        StockTechDaily tech = StockTechDaily.builder().stockCode(klineDaily.getStockCode()).stockName(klineDaily.getStockName()).tradeDate(klineDaily.getTradeDate()).build();
+        StockTechDaily tech = StockTechDaily.builder().stockCode(stockCode).stockName(klineDaily.getStockName()).tradeDate(klineDaily.getTradeDate())
+                .limitUpCount(limitUpCount).price(klineDaily.getPrice()).build();
 
         // ===================== 趋势(EMA + MACD + ADX + CYC): 确认当前是多头还是空头市场  =====================
         // 1. EMA 指数移动平均 -- 确定当前波段的多空基调                         -- 隔夜条件：价格站上 EMA5/EMA10 → 隔夜安全；跌破 EMA10 → 不隔夜。
@@ -125,7 +132,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         tech.setEma5(ema5.bigDecimalValue());
         tech.setEma10(ema10.bigDecimalValue());
 
-        DtBIASIndicator biasInd = new DtBIASIndicator(series, 5);
+        DtBIASIndicator biasInd = new DtBIASIndicator(series, 6);
         Num bias = biasInd.getBias();
         tech.setBias(bias.bigDecimalValue());
 
@@ -200,7 +207,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         DtATRIndicator atrInd = new DtATRIndicator(series, 7);
         tech.setMtr(atrInd.getMtr().bigDecimalValue());
         tech.setAtr(atrInd.getAtr().bigDecimalValue());
-
+        tech.setAtrStrong(atrInd.isAtrStrong() ? YES : NO);
 
         // ======================== 策略辅助 ======================== //
 
@@ -226,7 +233,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         // ======================== 量价关系 ========================
         VolumeAndPriceSignal volumeAndPriceSignal = calcVolumeAndPrice(series, highest, lowest, ema5, ema10, bias, klineDaily.getVolumeRatio(), obvmaInd, bollInd, dvg);
         tech.setSignalType(volumeAndPriceSignal.getSignalType());
-        tech.setSignalLevel(volumeAndPriceSignal.getSignalLevel());
+        tech.setSignalLevel(volumeAndPriceSignal.getSignalLevel().getLevel());
         tech.setSignalResult(volumeAndPriceSignal.getSignalResult());
 
         return tech;

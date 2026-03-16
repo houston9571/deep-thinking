@@ -6,10 +6,10 @@ import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.CachedIndicator;
 import org.ta4j.core.indicators.helpers.TypicalPriceIndicator;
 import org.ta4j.core.indicators.helpers.VolumeIndicator;
+import org.ta4j.core.num.NaN;
 import org.ta4j.core.num.Num;
 
 import static com.deepthinking.strategy.StrategyUtils.NUM_0;
-import static com.deepthinking.strategy.StrategyUtils.NUM_NAN;
 
 /**
  * 自定义 CYC 指标（股价平均成本线） - 带缓存优化
@@ -20,7 +20,7 @@ import static com.deepthinking.strategy.StrategyUtils.NUM_NAN;
 public class DtCYCIndicator extends CachedIndicator<Num> {
 
     @Getter
-    private Num cyc = NUM_NAN;
+    private Num cyc = NaN.NaN;
 
     public DtCYCIndicator(BarSeries series, int period) {
         super(series);

@@ -49,7 +49,7 @@ public class OverNightStrategy {
 
         short divergenceStrength = 0;
         List<String> result = Lists.newArrayList();
-        // 底背离：价格创出新低（或低点持平），而指标未能同步创出新低，反而出现更高的低点 → 预示下跌动能衰竭，可能见底回升。  -- 买入信号
+        // 底背离：价格创出新低（或低点持平），而指标未能同步创出新低，反而出现更高的低点 → 预示下跌动能衰竭，可能见底回升。  -- 买入信号 9分
         if (closePrice.isEqual(lowest)) {
             if (!macdInd.isLowest() || (macdInd.isGreen() && macdInd.isShirk())) {          // MACD底背离或绿柱缩小
                 divergenceStrength++;
@@ -90,12 +90,12 @@ public class OverNightStrategy {
 
             // 底背离时成交量放大，则反转概率更高
             if (divergenceStrength > 0) {
-                divergenceSignal.setDivergenceStrength(divergenceStrength);
                 divergenceSignal.setDivergenceType(DivergenceType.BOTTOM);
+                divergenceSignal.setDivergenceStrength(divergenceStrength);
                 divergenceSignal.setDivergenceResult(StringUtil.joinWithIndex(COMMA, result));
             }
         }
-        // 顶背离：价格创出新高（或高点持平），而指标未能同步创出新高，反而出现更低的高点 → 预示上涨动能减弱，可能见顶回落。 -- 卖出信号
+        // 顶背离：价格创出新高（或高点持平），而指标未能同步创出新高，反而出现更低的高点 → 预示上涨动能减弱，可能见顶回落。 -- 卖出信号 9分
         if (closePrice.isEqual(highest)) {
             if (!macdInd.isHighest() || (macdInd.isRed() && macdInd.isShirk())) {           // MACD顶背离或红柱缩小
                 divergenceStrength++;
@@ -134,8 +134,8 @@ public class OverNightStrategy {
                 result.add("MFI");      // MFI 加入了成交量权重，比 RSI 更难被操纵。MFI 的顶背离（捕捉庄家出货）和 CCI 的底背离（捕捉急跌后的超跌反弹）
             }
             if (divergenceStrength > 0) {
-                divergenceSignal.setDivergenceStrength(divergenceStrength);
                 divergenceSignal.setDivergenceType(DivergenceType.TOP);
+                divergenceSignal.setDivergenceStrength(divergenceStrength);
                 divergenceSignal.setDivergenceResult(StringUtil.joinWithIndex(COMMA, result));
             }
         }
@@ -145,6 +145,8 @@ public class OverNightStrategy {
 
     /**
      * 计算量价关系
+     * 量比>1.2视为放量
+     * 量比<0.8视为缩量
      */
     public static VolumeAndPriceSignal calcVolumeAndPrice(BarSeries series, Num highest, Num lowest, Num ema5N, Num ema10N, Num bias, BigDecimal volRatio,
                                                           DtOBVMAIndicator obvmaInd, DtBOLLIndicator bollInd, DivergenceSignal divergenceSignal) {
@@ -374,7 +376,7 @@ public class OverNightStrategy {
 
 
     /**
-     * 多因子共振信号 -> 日线指标 -- 定趋势，加股票池
+     * 多因子共振信号 -> 日线指标 -- 定趋势，score > 60 加股票池
      * 等待确认：背离信号出现后，不立即入场，等待价格突破背离前的趋势线、指标金叉/死叉或关键价位。
      * *
      * 趋势       EMA, MACD, ADX, CYC       确认当前是多头还是空头市场
@@ -504,7 +506,7 @@ public class OverNightStrategy {
             buyReasons.add("BOLL开口且中轨向上倾斜(买入信号)");
         }
         // 2. ATR 超短线止损, 动力确认: MTR>1.5*ATR（波动扩张）趋势加速/异动突破  确认方向后加仓
-        if (atrInd.volumeConfirm() && closePrice.isGreaterThan(ema5N)) { // 价格上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
+        if (atrInd.isAtrStrong() && closePrice.isGreaterThan(ema5N)) { // 价格上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
             buyScore += 10;
             buyReasons.add("ATR波动扩张，价格上升且MTR>1.5*ATR");
         }
@@ -636,7 +638,7 @@ public class OverNightStrategy {
 
 
     /**
-     * 多因子共振信号 -> Kline指标(1分钟) -- 确定买卖点
+     * 多因子共振信号 -> Kline指标(1分钟) -- 确定买卖点 score > 60
      * *
      * 趋势       EMA, MACD       确认当前是多头还是空头市场
      * 动能       RSI, KDJ, WR    寻找超买超卖后的反转或爆发点
@@ -669,13 +671,13 @@ public class OverNightStrategy {
             buyScore += 5;
             buyReasons.add("EMA金叉");   // 金叉: 当前 MA5 > MA10; 前一刻 MA5 <= MA10
         }
-        // 2. MACD 零轴上金叉
+        // 2. MACD 金叉  ** 暂时先去掉零轴判断，线上很难出现这种情况，有时dif从很小的一个负数值向上的金叉
         if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS_RED) {   // 金叉且红柱放大
             buyScore += 20;
-            buyReasons.add("MACD零轴上金叉且红柱放大(动能强)");
+            buyReasons.add("MACD金叉且红柱放大(动能强)");
         } else if (macdStatus == DtMACDIndicator.CrossStatus.GOLDEN_CROSS) {
             buyScore += 10;
-            buyReasons.add("MACD零轴上金叉");
+            buyReasons.add("MACD金叉");
         }
 
         // ===================== 动能(RSI + KDJ + WR = 50分) -- 灵敏择时, 寻找超买超卖后的反转或爆发点 =====================
@@ -736,7 +738,7 @@ public class OverNightStrategy {
             buyReasons.add("BOLL开口且中轨向上倾斜(买入信号)");
         }
         // 2. ATR 超短线止损, 动力确认: MTR>1.5*ATR（波动扩张）趋势加速/异动突破  确认方向后加仓
-        if (atrInd.volumeConfirm() && closePrice.isGreaterThan(ema5N)) { // 价格上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
+        if (atrInd.isAtrStrong() && closePrice.isGreaterThan(ema5N)) { // 价格上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
             buyScore += 10;
             buyReasons.add("ATR波动扩张，价格上升且MTR>1.5*ATR");
         }
@@ -751,13 +753,13 @@ public class OverNightStrategy {
             sellScore += 5;
             sellReasons.add("EMA死叉");
         }
-        // 2. MACD 零轴下死叉
+        // 2. MACD 死叉
         if (macdStatus == DtMACDIndicator.CrossStatus.DEATH_CROSS_GREEN) {          // 死叉且绿柱放大
             sellScore += 20;
-            sellReasons.add("MACD零轴下死叉且绿柱放大(动能弱)");
+            sellReasons.add("MACD死叉且绿柱放大(动能弱)");
         } else if (macdStatus == DtMACDIndicator.CrossStatus.DEATH_CROSS) {
             sellScore += 10;
-            sellReasons.add("MACD零轴下死叉");
+            sellReasons.add("MACD死叉");
         }
 
         // ===================== 动能(RSI + KDJ + WR = 45分) -- 灵敏择时, 寻找超买超卖后的反转或爆发点 =====================

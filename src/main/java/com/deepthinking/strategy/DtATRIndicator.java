@@ -42,7 +42,7 @@ public class DtATRIndicator extends CachedIndicator<Num> {
      * 动力确认，价格处于上升趋势，且MTR>1.5*ATR（波动扩张）时入场，做多信号
      * MTR > 1.5*ATR 趋势加速/异动突破  确认方向后加仓
      */
-    public boolean volumeConfirm(){
+    public boolean isAtrStrong(){
         return mtr.isGreaterThan(atr.multipliedBy(numOf(1.5)));      // 1.5 过滤掉低波动期的假信号。
     }
 

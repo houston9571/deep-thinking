@@ -56,15 +56,17 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
         List<StockPool> stockPools = Lists.newArrayList();
         for (StockKlineDaily stock : stockKlineDailyList) {
             String stockCode = stock.getStockCode();
+
             StockInfo stockInfo = stockInfoService.getStockInfo(stockCode);
             if (!passBasicSelection(stockInfo, stock)) {                  // 核心结论：隔夜持仓需精选基本面稳健、现金流充沛、行业抗风险的股票。
                 continue;
             }
-            StockTechDaily techDaily = stockTechDailyService.getStockTechDaily(stockCode, tradeDate);
 
-            if (!passIndicatorSelection(techDaily)) {                     // 指标和原则
+            StockTechDaily techDaily = stockTechDailyService.getStockTechDaily(stockCode, tradeDate);
+            if (!passIndicatorSelection(techDaily)) {                     // 核心结论：底背离、指标共振、量价关系，最好3项满足
                 continue;
             }
+
             StockPool p = new StockPool();
             BeanUtil.copyProperties(stock, p, true);
             stockPools.add(p);

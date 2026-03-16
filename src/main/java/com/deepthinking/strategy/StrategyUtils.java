@@ -1,6 +1,8 @@
 package com.deepthinking.strategy;
 
+import lombok.Getter;
 import org.ta4j.core.num.DecimalNum;
+import org.ta4j.core.num.DoubleNum;
 import org.ta4j.core.num.Num;
 
 import java.math.BigDecimal;
@@ -10,7 +12,6 @@ import java.util.List;
 public interface StrategyUtils {
 
 
-    Num NUM_NAN = DecimalNum.valueOf(Double.NaN);
     Num NUM_0 = DecimalNum.valueOf(0);
     Num NUM_1 = DecimalNum.valueOf(1);
     Num NUM_2 = DecimalNum.valueOf(2);
@@ -39,8 +40,16 @@ public interface StrategyUtils {
         BUY, SELL, WATCH;
     }
 
+    @Getter
     enum SignalLevel {
-        NONE, WEAK, LOW, MEDIUM, HIGH, HIGHEST;
+        NONE((short) 0), WEAK((short) 1), LOW((short) 2), MEDIUM((short) 3), HIGH((short) 4), HIGHEST((short) 5);
+
+        final short level;
+
+        SignalLevel(short level) {
+            this.level = level;
+        }
+
     }
 
     static Num numOf(Number n) {

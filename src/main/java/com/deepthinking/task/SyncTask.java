@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,18 +41,18 @@ public class SyncTask {
 
     private final DragonStockService dragonStockService;
 
-    private final TradeCalendarService tradeCalendarService;
+    private final SystemLogService systemLogService;
 
 
 
-    @Scheduled(cron = "0 0/30 * * * ?")
+    @Scheduled(cron = "0 03,33 * * * ?")
     void systemInfo() {
         LinkedHashMap map = (LinkedHashMap) OSUtils.getSystemInfo().get("JVM");
         log.info(" --> {}:{}", "TotalMemory", map.get("TotalMemory"));
         log.info(" --> {}:{}", "MaxMemory", map.get("MaxMemory"));
         log.info(" --> {}:{}", "FreeMemory", map.get("FreeMemory"));
         log.info(" --> {}:{}", "RealUsage", map.get("RealUsage"));
-        log.info(" --> {}", tradeCalendarService.statStockKlineDaily());
+        systemLogService.printSystemLogs(LocalDate.now());
     }
 
     /**************************** 股票行情 ***********************************/
@@ -62,11 +63,13 @@ public class SyncTask {
     @Scheduled(cron = "0 0/1 9-12,13-15 ? * 1-5")
     void syncStockCalcKlineIndicators() {
         if (isTradeTime() && LocalTime.now().isAfter(MORNING_0945)) {                   // 09:45开始同步，k线指标才能满足数量15
-            log.info(" --> 同步股票K线行情 【stock_kline_minute】开始 ");
+            log.info(" --> 同步股票K线行情 stock_kline_minute】开始 ");
             int size = stockKlineMinuteService.syncStockKlineMinute();
-            log.info(" --> 同步股票K线行情 【stock_kline_minute】结束: {} ", size);
+            systemLogService.plusSystemLog("stock_kline_minute", size);
+            log.info(" --> 同步股票K线行情 stock_kline_minute】结束: {} ", size);
             log.info(" --> 计算股票K线指标【stock_tech_minute】开始 ");
             size = stockTechMinuteService.syncStockTechMinute();
+            systemLogService.plusSystemLog("stock_tech_minute", size);
             log.info(" --> 计算股票K线指标【stock_tech_minute】结束: {} ", size);
         }
     }
@@ -83,6 +86,7 @@ public class SyncTask {
             String tradeDate = getTradeDateStr();
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始 ");
             List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList(tradeDate);      // 全量同步股票日线实时行情
+            systemLogService.saveSystemLog("stock_kline_daily", list.size());
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束：{} ", list.size());
 
             // 计算日线指标
@@ -97,6 +101,7 @@ public class SyncTask {
         if (isTradeDate()) {
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始");
             List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList(getTradeDateStr());      // 全量同步股票日线实时行情
+            systemLogService.saveSystemLog("stock_kline_daily", list.size());
             log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束：{}", list);
             // 计算日线指标
 //            for (StockKlineDaily stock : list) {
@@ -113,6 +118,7 @@ public class SyncTask {
         if (isTradeDate()) {
             log.info(" --> 执行股票池策略精选【stock_pool】开始 ");
             int size = stockPoolService.execStockPoolSelection(getTradeDateStr());
+            systemLogService.saveSystemLog("stock_pool", size);
             log.info(" --> 执行股票池策略精选【stock_pool】结束：{} ", size);
         }
     }
@@ -128,8 +134,8 @@ public class SyncTask {
     public void syncStockInfo() {
         if (isTradeDate()) {
             log.info(" --> 同步股票基本信息【stock_info】开始");
-            Result<Integer> result = stockInfoService.syncStockInfoAll();
-            log.info(" --> 同步股票基本信息【stock_info】结束 {}", result);
+            int size = stockInfoService.syncStockInfoAll();
+            log.info(" --> 同步股票基本信息【stock_info】结束 {}", size);
         }
     }
 
@@ -171,6 +177,7 @@ public class SyncTask {
             Long count = dragonDeptService.countDragonDept();
             if (count < 10) {
                 int size = dragonDeptService.syncDragonDeptList(getTradeDateStr());
+                systemLogService.saveSystemLog("dragon_dept", size);
                 log.info(" --> 同步龙虎榜【dragon_dept】结束: {}", size);
             } else {
                 log.info(" --> 同步龙虎榜【dragon_dept】重复同步 count={}", count);
@@ -180,6 +187,7 @@ public class SyncTask {
             count = dragonStockService.countDragonStock();
             if (count < 10) {
                 int size = dragonStockService.syncDragonStockList(getTradeDateStr());
+                systemLogService.saveSystemLog("dragon_stock", size);
                 log.info(" --> 同步龙虎榜【dragon_stock】结束: {}", size);
             } else {
                 log.info(" --> 同步龙虎榜【dragon_stock】重复同步 count={}", count);

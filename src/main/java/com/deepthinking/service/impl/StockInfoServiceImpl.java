@@ -62,7 +62,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
     }
 
 
-    public Result<Integer> syncStockInfoAll() {
+    public Integer syncStockInfoAll() {
         List<StockInfo> updates = findAll();
         log.error(">>>>>syncStockInfoAll start. 更新：{}", updates.size());
         for (StockInfo daily : updates) {
@@ -88,7 +88,7 @@ public class StockInfoServiceImpl extends MybatisBaseServiceImpl<StockInfoMapper
             }
         }
         log.error(">>>>>syncStockInfoAll end. 新增：{}", inserts.size());
-        return Result.success(inserts.size() + updates.size());
+        return inserts.size() + updates.size();
     }
 
 

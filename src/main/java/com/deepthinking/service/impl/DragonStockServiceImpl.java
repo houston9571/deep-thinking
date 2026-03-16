@@ -16,6 +16,7 @@ import com.deepthinking.mysql.vo.DragonDetailPartner;
 import com.deepthinking.mysql.vo.DragonDetailStockKline;
 import com.deepthinking.service.DragonStockDetailService;
 import com.deepthinking.service.DragonStockService;
+import com.deepthinking.service.SystemLogService;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,8 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
     private final EastMoneyDragonApi eastMoneyDragonApi;
 
     private final DragonStockDetailService dragonStockDetailService;
+
+    private final SystemLogService systemLogService;
 
     /**
      * 查询当天龙虎榜列表，按游资分类
@@ -162,6 +165,7 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
             log.error(">>>>>getDragonStockList saveBatch error. {}", e.getMessage());
         }
         // 同步龙虎榜个股买卖详情
+        int count = 0;
         for (DragonStock d : list) {
             int cc = dragonStockDetailService.syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
             if (cc == 0) {
@@ -169,7 +173,9 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
                 Threads.sleep(NumberUtils.random(5000));
                 cc = dragonStockDetailService.syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
             }
+            count += cc;
         }
+        systemLogService.saveSystemLog("dragon_stock_detail", count);
         return list.size();
     }
 

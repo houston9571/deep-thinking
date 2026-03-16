@@ -35,14 +35,11 @@ public class StockTechMinute extends BaseEntity {
     private BigDecimal low;
     private BigDecimal open;
     private BigDecimal close;
-    private Long volume;
     private Long amount;
+    private Long volume;
+    private BigDecimal volumeRatio;
     private Long totalVolume;
     private Long totalAmount;
-    private BigDecimal volumeRatio;
-    private StrategyUtils.SignalType signalType;
-    private StrategyUtils.SignalLevel signalLevel;
-    private String signalResult;
 
     private BigDecimal ema5;
     private BigDecimal ema10;
@@ -76,12 +73,14 @@ public class StockTechMinute extends BaseEntity {
     private BigDecimal vmacdBar;
     private DtVMACDIndicator.CrossStatus vmacdStatus;
 
+    // ATR(6)
+    private BigDecimal atr;
+    private BigDecimal mtr;
+    private Short atrStrong;
+
     private Long obv;
     private Long obvMa5;
     private DtOBVMAIndicator.CrossStatus obvStatus;
-
-    private BigDecimal atr;
-    private BigDecimal mtr;
 
     private StrategyUtils.DivergenceType divergenceType;
     private Short divergenceStrength;
@@ -92,6 +91,11 @@ public class StockTechMinute extends BaseEntity {
     private String buyReason;
     private Double sellScore;
     private String sellReason;
+
+    private StrategyUtils.SignalType signalType;
+    private Short signalLevel;
+    private String signalResult;
+
 
     /**
      * 主力净流入 = 超大单净流入 + 大单净流入
