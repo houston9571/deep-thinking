@@ -97,7 +97,7 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
                 } catch (Exception e) {
                     String msg = "";
                     JSONObject st = array.getJSONObject(i);
-                    if(StrUtil.equals(st.getString("f2"), DASHED) && StrUtil.equals(st.getString("f18"), DASHED)){      // 没有最新价，但是有咋收，说明今日停盘
+                    if(StrUtil.equals(st.getString("f2"), DASHED) && !StrUtil.equals(st.getString("f18"), DASHED)){      // 没有最新价，但是有咋收，说明今日停盘
                         msg = "- 今日停盘 ";
                     }
                     log.error(">>>>>syncStockTradeList JSONObject.parseObject error. {} {} 错误信息：{}", array.getString(i), msg, e.getMessage());
