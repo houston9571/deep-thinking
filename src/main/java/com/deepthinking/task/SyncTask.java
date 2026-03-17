@@ -182,7 +182,7 @@ class SyncTask {
         watch.start();
         int size = conceptDelayService.syncConceptTradeList(100);
         watch.stop();
-        systemLogService.saveSystemLog("stock_info", 100, watch.getLastTaskTimeMillis());
+        systemLogService.saveSystemLog("concept_daily", 100, watch.getLastTaskTimeMillis());
         log.info(" --> 同步概念板块【concept_daily】结束 top100 {} {}ms", size, watch.getLastTaskTimeMillis());
     }
 

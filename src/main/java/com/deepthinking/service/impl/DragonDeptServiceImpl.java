@@ -65,7 +65,7 @@ public class DragonDeptServiceImpl extends MybatisBaseServiceImpl<DragonDeptMapp
             if (CollectionUtils.isEmpty(data)) {
                 break;
             }
-            log.info(">>>>>getDragonDeptList {} pageNum:{} data:{}", data, pageNum, data.size());
+            log.info(">>>>>getDragonDeptList  pageNum:{} data:{}", pageNum, data.size());
             total += data.size();
             for (int i = 0; i < data.size(); i++) {
                 ++total;

@@ -207,7 +207,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
             return tech;
         }
 
-        BaseBarSeries series = new BaseBarSeriesBuilder().withName(tech.getStockCode() + "_Minute").build();
+        BaseBarSeries series = new BaseBarSeriesBuilder().withName(tech.getStockCode() + tech.getStockName()).build();
         for (StockTechMinute t : list) {
             Instant tr = t.getTradeDate().atTime(t.getTradeTime()).atZone(ZoneId.of(ZONE_ID)).toInstant();
             series.addBar(new BaseBar(Duration.ofMinutes(1), tr.minusSeconds(60), tr,
@@ -308,7 +308,7 @@ public class StockTechMinuteServiceImpl extends MybatisBaseServiceImpl<StockTech
         tech.setDivergenceType(dvg.getDivergenceType());
         tech.setDivergenceStrength(dvg.getDivergenceStrength());
         tech.setDivergenceResult(dvg.getDivergenceResult());
-        log.info("-----计算背离：{} {}_{}_{}", series.getName(), dvg.getDivergenceType(), dvg.getDivergenceStrength(), dvg.getDivergenceResult());
+        log.info("-----计算背离：{} {}", series.getName(), JSONObject.toJSONString(dvg));
 
         // ======================== 多因子共振信号 Kline ========================
         ResonanceSignal resonance = judgeResonanceMinute(lastIndex, closePrice, ema5Ind, ema10Ind, macdInd, rsiInd, kdjInd, wrInd, vmacdInd, obvmaInd, bollInd, atrInd, highest);

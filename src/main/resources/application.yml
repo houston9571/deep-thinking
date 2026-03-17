@@ -79,7 +79,7 @@ mybatis-plus:
 logging:
   config: classpath:log4j2-dev.xml
   level:
-    com.zaxxer.hikari: DEBUG
+#    com.zaxxer.hikari: DEBUG
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 forest:
   backend: okhttp3             # 后端HTTP框架 okhttp3 httpclient

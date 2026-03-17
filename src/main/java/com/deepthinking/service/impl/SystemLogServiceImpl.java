@@ -41,6 +41,8 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
     public void printSystemLogs(LocalDate tradeDate) {
         SystemLog systemLog = SystemLog.builder().tradeDate(tradeDate).build();
         List<SystemLog> list = queryList(systemLog);
-        list.forEach(gg -> log.info("---> {} {} : {} {}ms", tradeDate, gg.getName(), gg.getCount(), gg.getMillis()));
+        for (SystemLog gg : list) {
+            log.info("---> {} {} : {} {}ms", tradeDate, gg.getName(), gg.getCount(), gg.getMillis());
+        }
     }
 }

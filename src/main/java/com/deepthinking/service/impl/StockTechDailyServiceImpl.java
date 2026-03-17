@@ -1,5 +1,6 @@
 package com.deepthinking.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alicp.jetcache.anno.CacheUpdate;
 import com.alicp.jetcache.anno.Cached;
 import com.deepthinking.common.enums.DateFormatEnum;
@@ -103,7 +104,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         StockKlineDaily klineDaily = list.getLast();
         String stockCode = klineDaily.getStockCode();
         int limitUpCount = 0;
-        BaseBarSeries series = new BaseBarSeriesBuilder().withName(stockCode + "_Daily").build();
+        BaseBarSeries series = new BaseBarSeriesBuilder().withName(stockCode + klineDaily.getStockName()).build();
         for (StockKlineDaily daily : list) {
             series.addBar(new BaseBar(Duration.ofDays(1), null, null,
                     DecimalNum.valueOf(daily.getOpen()),
@@ -221,7 +222,7 @@ public class StockTechDailyServiceImpl extends MybatisBaseServiceImpl<StockTechD
         tech.setDivergenceType(dvg.getDivergenceType());
         tech.setDivergenceStrength(dvg.getDivergenceStrength());
         tech.setDivergenceResult(dvg.getDivergenceResult());
-        log.info("-----计算背离：{} {}_{}_{}", series.getName(), dvg.getDivergenceType(), dvg.getDivergenceStrength(), dvg.getDivergenceResult());
+        log.info("-----计算背离：{} {}", series.getName(), JSONObject.toJSONString(dvg));
 
         // ======================== 多因子共振信号 日线 ========================
         ResonanceSignal resonance = judgeResonanceDaily(endIndex, closePrice, ema5Ind, ema10Ind, macdInd, adxInd, cyc5Ind, cyc13Ind, rsiInd, kdjInd, wrInd, cciInd, vmacdInd, obvmaInd, mfiInd, bollInd, atrInd, highest);
