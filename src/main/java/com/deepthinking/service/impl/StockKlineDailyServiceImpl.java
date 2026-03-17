@@ -1,6 +1,7 @@
 package com.deepthinking.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alicp.jetcache.anno.CacheUpdate;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static cn.hutool.core.text.StrPool.DASHED;
 import static com.deepthinking.common.constant.Constants.*;
 
 @Slf4j
@@ -93,7 +95,12 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
                         list.add(daily);
                     }
                 } catch (Exception e) {
-                    log.error(">>>>>syncStockTradeList JSONObject.parseObject error. {} {}", array.getString(i), e.getMessage());
+                    String msg = "";
+                    JSONObject st = array.getJSONObject(i);
+                    if(StrUtil.equals(st.getString("f2"), DASHED) && StrUtil.equals(st.getString("f18"), DASHED)){      // 没有最新价，但是有咋收，说明今日停盘
+                        msg = "- 今日停盘 ";
+                    }
+                    log.error(">>>>>syncStockTradeList JSONObject.parseObject error. {} {} 错误信息：{}", array.getString(i), msg, e.getMessage());
                 }
             }
             if (array.size() < pageSize) {

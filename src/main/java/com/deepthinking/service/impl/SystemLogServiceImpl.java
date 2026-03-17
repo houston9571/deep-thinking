@@ -24,7 +24,7 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
 
     public void saveSystemLog(String name, int count) {
         SystemLog systemLog = SystemLog.builder().tradeDate(LocalDate.now()).name(name).count(count).build();
-        saveOrUpdate(systemLog, new String[]{"stock_code", "name"});
+        saveOrUpdate(systemLog, new String[]{"trade_date", "name"});
     }
 
     public void plusSystemLog(String name, int count) {
@@ -33,7 +33,7 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
             saveSystemLog(name, count);
         }else {
             systemLog.setCount(systemLog.getCount()+count);
-            saveOrUpdate(systemLog, new String[]{"stock_code", "name"});
+            saveOrUpdate(systemLog, new String[]{"trade_date", "name"});
         }
     }
 
