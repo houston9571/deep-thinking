@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.deepthinking.common.constant.Constants.DAYS_1;
+import static com.deepthinking.common.constant.Constants.MINS_3;
 import static com.deepthinking.strategy.SelectionStrategy.passBasicSelection;
 import static com.deepthinking.strategy.SelectionStrategy.passIndicatorSelection;
 
@@ -38,7 +39,7 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
 
     private final StockInfoService stockInfoService;
 
-    @Cached(name = CACHE_KEY, key = "#tradeDate", expire = DAYS_1)
+//    @Cached(name = CACHE_KEY, key = "#tradeDate", expire = MINS_3)
     public List<StockPool> queryStocks(String tradeDate) {
         List<StockPool> stocks = stockPoolMapper.queryStocks(tradeDate);
         log.info("--> 股票池：{}", stocks.size());
