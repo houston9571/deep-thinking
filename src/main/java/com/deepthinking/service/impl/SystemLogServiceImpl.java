@@ -33,7 +33,6 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
             saveSystemLog(name, count, millis);
         } else {
             systemLog.setCount(systemLog.getCount() + count);
-            systemLog.setMillis(systemLog.getMillis() + millis);
             saveOrUpdate(systemLog, new String[]{"trade_date", "name"});
         }
     }
