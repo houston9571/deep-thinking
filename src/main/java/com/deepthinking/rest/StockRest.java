@@ -2,6 +2,7 @@ package com.deepthinking.rest;
 
 import com.deepthinking.ext.base.PageInfo;
 import com.deepthinking.ext.base.PageResult;
+import com.deepthinking.ext.base.Result;
 import com.deepthinking.mysql.entity.StockInfo;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.mysql.entity.StockPool;
@@ -38,6 +39,13 @@ public class StockRest {
     public StockKlineDaily getStockKlineDaily(@PathVariable String stockCode) {
         return stockKlineDailyService.getStockKlineDaily(stockCode);
     }
+
+
+    @GetMapping("concept/{conceptCode}/{tradeDate}")
+    public Result<List<StockKlineDaily>> getStockKlineDailyByConcept(@PathVariable String conceptCode, @PathVariable String tradeDate) {
+        return Result.success(stockKlineDailyService.getStockKlineDailyByConcept(conceptCode,tradeDate));
+    }
+
 
 
     /**

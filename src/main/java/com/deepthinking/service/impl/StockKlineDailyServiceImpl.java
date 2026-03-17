@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -39,6 +40,10 @@ public class StockKlineDailyServiceImpl extends MybatisBaseServiceImpl<StockKlin
 
     private final EastMoneyStockApi eastMoneyStockApi;
 
+
+    public List<StockKlineDaily> getStockKlineDailyByConcept(String conceptCode, String tradeDate) {
+        return stockKlineDailyMapper.getStockKlineDailyByConcept(conceptCode, tradeDate);
+    }
 
     @Cached(name = CACHE_KEY, key = "#stockCode", expire = MINS_30)
     public StockKlineDaily getStockKlineDaily(String stockCode) {

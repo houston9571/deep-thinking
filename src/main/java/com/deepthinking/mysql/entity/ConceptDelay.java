@@ -106,6 +106,11 @@ public class ConceptDelay extends BaseEntity {
     @JSONField(alternateNames = "f105", deserializeUsing = NumberCheckReader.class)
     private Long downNum;
 
+    /**
+     * f106 持平家数
+     */
+    @JSONField(alternateNames = "f106", deserializeUsing = NumberCheckReader.class)
+    private Long flatNum;
 
     /**************************
      ******** 资金流向 *********

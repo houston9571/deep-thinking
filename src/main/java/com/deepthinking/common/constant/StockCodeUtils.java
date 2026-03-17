@@ -60,19 +60,7 @@ public class StockCodeUtils {
         return new String[]{"", ""};
     }
 
-    /**
-     * 验证股票代码
-     */
-    public static boolean isValidSymbol(String symbol) {
-        if (symbol == null || symbol.length() != 6) {
-            return false;
-        }
-
-        try {
-            Integer.parseInt(symbol);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    public static void main(String[] args) {
+        System.out.println(buildFields(300));
     }
 }

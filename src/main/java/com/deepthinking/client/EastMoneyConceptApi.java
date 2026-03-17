@@ -13,9 +13,9 @@ public interface EastMoneyConceptApi {
 
     /**
      * 概念板块列表，按涨跌幅排序
-     * http://push2delay.eastmoney.com/api/qt/clist/get?fs=m:90+t:3+f:!50&pn=1&pz=100&fields=f12,f13,f14,f1,f2,f4,f3,f6,f152,f20,f8,f104,f105,f297&fid=f3&po=1&np=1&fltt=1&invt=2&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=|0|0|0|web&_=1770654328438
+     * http://push2delay.eastmoney.com/api/qt/clist/get?fs=m:90+t:3+f:!50&pn=1&pz=100&fields=f12,f13,f14,f1,f2,f4,f3,f6,f152,f20,f8,f104,f106,f297&fid=f3&po=1&np=1&fltt=1&invt=2&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=|0|0|0|web&_=1770654328438
      */
-    @Get("/api/qt/clist/get?fs=m:90+t:3+f:!50&pn={pageNum}&pz={pageSize}&fields=f12,f13,f14,f1,f2,f4,f3,f6,f152,f20,f8,f104,f105,f297&fid=f3" +
+    @Get("/api/qt/clist/get?fs=m:90+t:3+f:!50&pn={pageNum}&pz={pageSize}&fields=f12,f13,f14,f1,f2,f4,f3,f6,f152,f20,f8,f104,f105,f106,f297&fid=f3" +
             "&po=1&np=1&fltt=1&invt=2&dect=1&ut=fa5fd1943c7b386f172d6893dbfba10b&wbp2u=|0|0|0|web&_={ts}")
     JSONObject syncConceptTradeList(@Var("pageNum") int pageNum, @Var("pageSize") int pageSize, @Var("ts") long ts);
 

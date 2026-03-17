@@ -35,9 +35,9 @@
                             <span class="center" style="width: 70%;" :style="c.conceptName.length > 5 ? 'font-size: 19px;' : 'font-size: 20px;'">
                                 <a :href="'https://quote.eastmoney.com/bk/'+c.market+'.'+c.conceptCode+'.html'" target="_blank" style="color: #494949">{{c.conceptName}}</a>
                             </span>
-                            <span class="right" style="width: 30%; font-size: 14px;" :style="judgeColor(c.changePercent)"  @click="showStocks(c.conceptCode, c.tradeDate)">{{c.changePercent}}</span>
+                            <span class="right" style="width: 30%; font-size: 14px;" :style="judgeColor(c.changePercent)">{{c.changePercent}}</span>
                         </div>
-                        <div class="td-flex"  @click="showStocks(c.conceptCode, c.tradeDate)">
+                        <div class="td-flex">
                             <div class="center" style="width: 40%"><span style="color: red">{{c.upNum}}</span>/{{c.flatNum}}/<span style="color: green;">{{c.downNum}}</span></div>
                             <span class="right" style="width: 60%" :style="judgeColor(c.mainNetIn)">{{c.mainNetIn}}/{{c.mainNetRatio}}</span>
                         </div>
@@ -54,6 +54,13 @@
 </body>
 
 <script>
+    var fcode = "all";
+    var h = location.href;
+    console.log(h);
+    if (h.indexOf("?") > 0) {
+        fcode = h.substr(h.indexOf("?") + 1);
+        console.log(fcode);
+    }
     var fade = document.getElementById('fade');
     var MyDiv = document.getElementById('MyDiv');
     //关闭弹出层
@@ -65,7 +72,7 @@
 
     // 异步请求函数必须要写在外面，然后在vue里面调用
     function asyncLoadDate() {
-        axios.get('/concept/list/0')
+        axios.get('/concept/list/2')
             .then(function (response) {
                 if (response.status === 200) {
                     vm.fillData(response);
@@ -100,12 +107,18 @@
             getJsonValue: function (json) {
                 console.log(json)
             },
-            showStocks: function (conceptCode, tradeDate) {
+            showFundDetail: function (conceptCode) {
+                if (fcode == "all") {
+                    MyDiv.style.left = '20%';
+                } else {
+                    MyDiv.style.left = '13%';
+                    MyDiv.style.top = '0';
+                }
                 MyDiv.style.width = '1150px';
                 MyDiv.style.height = '680px';
                 MyDiv.style.display = 'block';
                 fade.style.display = 'block';
-                MyDiv.innerHTML = '<object type="text/html" data="conceptStock.html?conceptCode=' + conceptCode + '&tradeDate=' + tradeDate + '" width="100%" height="99%"></object>';
+                MyDiv.innerHTML = '<object type="text/html" data="fundDetail.html?' + conceptCode + '" width="100%" height="99%"></object>';
             },
             showReportStock: function (conceptCode) {
                 if (fcode == "all") {

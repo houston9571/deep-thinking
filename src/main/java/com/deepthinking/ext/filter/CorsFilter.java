@@ -52,7 +52,7 @@ public class CorsFilter implements Filter {
             }
         } catch (NoResourceFoundException e) {
             response.setStatus(SC_NOT_FOUND);
-            log.error("URI包含可疑特征: {} 返回{} {}", uri, SC_NOT_FOUND, e.getMessage());
+            log.error("URI包含可疑特征，返回{}: {}  {}", uri, SC_NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             log.error("URI过滤未知错误: {} {}", uri, e.getMessage());
         }

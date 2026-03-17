@@ -16,5 +16,11 @@ public interface ConceptDelayMapper extends BaseMapper<ConceptDelay> {
 
 
     @Select("SELECT * FROM concept_daily WHERE trade_date=#{tradeDate} ORDER BY change_percent DESC LIMIT #{top}")
-    List<ConceptDelay> queryConceptTop(@Param("tradeDate") LocalDate tradeDate, @Param("top") int top);
+    List<ConceptDelay> queryConceptTopOrderByChangePct(@Param("tradeDate") LocalDate tradeDate, @Param("top") int top);
+
+    @Select("SELECT * FROM concept_daily WHERE trade_date=#{tradeDate} ORDER BY main_net_in DESC LIMIT #{top}")
+    List<ConceptDelay> queryConceptTopOrderByMainNetIn(@Param("tradeDate") LocalDate tradeDate, @Param("top") int top);
+
+    @Select("SELECT * FROM concept_daily WHERE trade_date=#{tradeDate} ORDER BY main_net_ratio DESC LIMIT #{top}")
+    List<ConceptDelay> queryConceptTopOrderByMainNetRatio(@Param("tradeDate") LocalDate tradeDate, @Param("top") int top);
 }

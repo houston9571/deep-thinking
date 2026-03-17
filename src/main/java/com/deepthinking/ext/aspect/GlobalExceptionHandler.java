@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.deepthinking.common.exception.ParamValidatorException;
 import com.deepthinking.common.exception.ServiceException;
 import com.deepthinking.ext.base.Result;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -35,7 +36,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NoResourceFoundException.class})
     public void handleException(NoResourceFoundException e, HttpServletResponse response) {
         response.setStatus(SC_NOT_FOUND);
-        log.error("[NO_RESOURCE_FOUND]找不到该资源: {}", e.getMessage());
+        log.error("[NO_RESOURCE_FOUND]找不到该资源，返回{}: {}", SC_NOT_FOUND, e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
+    public Result<Void> handleException(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+        return loggingError(Result.fail(REQUEST_UNSUPPORTED, request.getRequestURL()));
     }
 
     /**
@@ -46,12 +53,6 @@ public class GlobalExceptionHandler {
     public Result<Void> handleException(ServiceException e) {
         log.debug("code:{} msg:{} {} ", e.getCode(), e.getMsg(), e.getCause());
         return loggingError(Result.fail(e.getCode(), e.getMsg()));
-    }
-
-    @ResponseBody
-    @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
-    public Result<Void> handleException(HttpRequestMethodNotSupportedException e) {
-        return loggingError(Result.fail(REQUEST_UNSUPPORTED));
     }
 
 

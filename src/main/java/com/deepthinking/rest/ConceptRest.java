@@ -7,6 +7,7 @@ import com.deepthinking.service.ConceptDelayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,10 +29,10 @@ public class ConceptRest {
     /**
      * 查询每日排名前10的板块，竖型列表，第一行是表头信息
      */
-    @GetMapping("list")
-    public Result<List<ConceptDelay>> conceptList() {
-        int days = 10, top = 10;
-        List<List<ConceptDelay>> grid = conceptDelayService.queryConceptTradeList(days, top);
+    @GetMapping("list/{orderBy}")
+    public Result<List<ConceptDelay>> conceptList(@PathVariable int orderBy) {
+        int days = 10, top = 20;
+        List<List<ConceptDelay>> grid = conceptDelayService.queryConceptTradeList(orderBy, days, top);
         return PageResult.success(grid);
     }
 

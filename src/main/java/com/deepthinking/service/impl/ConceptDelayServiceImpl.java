@@ -2,6 +2,7 @@ package com.deepthinking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyConceptApi;
@@ -38,17 +39,24 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
 
     private final EastMoneyConceptApi eastMoneyConceptApi;
 
-    private final StockPoolService stockPoolService;
+
+    private final String[] removeCode = {"BK0498","BK0499","BK0636","BK0500","BK0511","BK0636","BK0612","BK0705","BK0611","BK1645","BK0568","BK0804","BK0743","BK0701","BK0610",""};
 
     /**
      * 概念板块查询，竖型列表，第一行表头日期
      */
-    public List<List<ConceptDelay>> queryConceptTradeList(int days, int top) {
+    public List<List<ConceptDelay>> queryConceptTradeList(int orderBy, int days, int top) {
         List<ConceptDelay> title = conceptDelayMapper.queryConceptTradeDate(days);
         Map<LocalDate, List<ConceptDelay>> map = Maps.newLinkedHashMap();
         for (ConceptDelay conceptDelay : title) {
             conceptDelay.setWeek(DateUtils.getShortWeekName(conceptDelay.getTradeDate()));
-            map.put(conceptDelay.getTradeDate(), conceptDelayMapper.queryConceptTop(conceptDelay.getTradeDate(), top));
+            if(orderBy == 1){
+                map.put(conceptDelay.getTradeDate(), conceptDelayMapper.queryConceptTopOrderByMainNetIn(conceptDelay.getTradeDate(), top));
+            }else   if(orderBy == 2){
+                map.put(conceptDelay.getTradeDate(), conceptDelayMapper.queryConceptTopOrderByMainNetRatio(conceptDelay.getTradeDate(), top));
+            }else {
+                map.put(conceptDelay.getTradeDate(), conceptDelayMapper.queryConceptTopOrderByChangePct(conceptDelay.getTradeDate(), top));
+            }
         }
 
         List<List<ConceptDelay>> grid = Lists.newArrayList();
@@ -81,8 +89,10 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
             for (int i = 0; i < array.size(); i++) {
                 try {
                     ConceptDelay conceptDelay = JSONObject.parseObject(array.getString(i), ConceptDelay.class);
-                    syncConceptFundsFlow(conceptDelay);
-                    list.add(conceptDelay);
+                    if (!StrUtil.equalsAny(conceptDelay.getConceptCode(), removeCode)) {
+                        syncConceptFundsFlow(conceptDelay);
+                        list.add(conceptDelay);
+                    }
                 } catch (Exception e) {
                     log.error(">>>>>syncConceptTradeList JSONObject.parseObject error. {} {}", array.getString(i), e.getMessage());
                 }
