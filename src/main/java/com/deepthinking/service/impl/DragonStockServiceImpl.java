@@ -104,7 +104,7 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
     /**
      * 龙虎榜个股列表
      */
-    public Integer syncDragonStockList(String date) {
+    public List<DragonStock> syncDragonStockList(String date) {
         int total = 0, pageNum = 0, pageSize = 100;
         Map<String, DragonStock> map = Maps.newHashMap();
         JSONArray data = new JSONArray();
@@ -164,20 +164,9 @@ public class DragonStockServiceImpl extends MybatisBaseServiceImpl<DragonStockMa
         } catch (Exception e) {
             log.error(">>>>>getDragonStockList saveBatch error. {}", e.getMessage());
         }
-        // 同步龙虎榜个股买卖详情
-        int count = 0;
-        for (DragonStock d : list) {
-            int cc = dragonStockDetailService.syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
-            if (cc == 0) {
-                // 连续请求容易超时，重试一次
-                Threads.sleep(NumberUtils.random(5000));
-                cc = dragonStockDetailService.syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
-            }
-            count += cc;
-        }
-        systemLogService.saveSystemLog("dragon_stock_detail", count);
-        return list.size();
+        return list ;
     }
+
 
     private JSONArray syncDragonStockList(String date, int pageNum, int pageSize) {
         JSONObject json = eastMoneyDragonApi.syncDragonStockList(date, pageNum, pageSize);

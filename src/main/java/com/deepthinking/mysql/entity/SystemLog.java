@@ -28,6 +28,8 @@ public class SystemLog extends BaseEntity {
 
     private Integer count;
 
+    private Long millis;
+
     private String remark;
 
     private LocalDate tradeDate;

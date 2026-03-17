@@ -41,6 +41,7 @@ public class StockPoolServiceImpl extends MybatisBaseServiceImpl<StockPoolMapper
     @Cached(name = CACHE_KEY, key = "#tradeDate", expire = DAYS_1)
     public List<StockPool> queryStocks(String tradeDate) {
         List<StockPool> stocks = stockPoolMapper.queryStocks(tradeDate);
+        log.info("--> 股票池：{}", stocks.size());
         return stocks;
     }
 

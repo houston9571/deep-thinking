@@ -6,8 +6,11 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.deepthinking.client.EastMoneyDragonApi;
 import com.deepthinking.common.enums.DateFormatEnum;
+import com.deepthinking.common.thread.Threads;
 import com.deepthinking.common.utils.DateUtils;
+import com.deepthinking.common.utils.NumberUtils;
 import com.deepthinking.mysql.MybatisBaseServiceImpl;
+import com.deepthinking.mysql.entity.DragonStock;
 import com.deepthinking.mysql.entity.DragonStockDetail;
 import com.deepthinking.mysql.mapper.DragonStockDetailMapper;
 import com.deepthinking.service.DragonStockDetailService;
@@ -95,10 +98,25 @@ public class DragonStockDetailServiceImpl extends MybatisBaseServiceImpl<DragonS
     }
 
 
+    public int syncDragonStockDetailList(List<DragonStock> list) {
+        // 同步龙虎榜个股买卖详情
+        int count = 0;
+        for (DragonStock d : list) {
+            int cc = syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
+            if (cc == 0) {
+                // 连续请求容易超时，重试一次
+                Threads.sleep(NumberUtils.random(5000));
+                cc = syncDragonStockDetail(d.getTradeDate(), d.getStockCode(), d.getStockName());
+            }
+            count += cc;
+        }
+        return count;
+    }
+
     /**
      * 龙虎榜个股买卖详情
      */
-    public int syncDragonStockDetail(LocalDate date, String stockCode, String stockName) {
+    private int syncDragonStockDetail(LocalDate date, String stockCode, String stockName) {
         Map<String, DragonStockDetail> map = Maps.newHashMap();
         String tradeDate = DateUtils.format(date, DateFormatEnum.DATE);
         try {

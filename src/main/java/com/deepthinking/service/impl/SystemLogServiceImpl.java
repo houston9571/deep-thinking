@@ -22,17 +22,18 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
     private final SystemLogMapper systemLogMapper;
 
 
-    public void saveSystemLog(String name, int count) {
-        SystemLog systemLog = SystemLog.builder().tradeDate(LocalDate.now()).name(name).count(count).build();
+    public void saveSystemLog(String name, int count, long millis) {
+        SystemLog systemLog = SystemLog.builder().tradeDate(LocalDate.now()).name(name).count(count).millis(millis).build();
         saveOrUpdate(systemLog, new String[]{"trade_date", "name"});
     }
 
-    public void plusSystemLog(String name, int count) {
+    public void plusSystemLog(String name, int count, long millis) {
         SystemLog systemLog = findOne(SystemLog.builder().tradeDate(LocalDate.now()).name(name).build());
         if (ObjectUtil.isEmpty(systemLog)) {
-            saveSystemLog(name, count);
-        }else {
-            systemLog.setCount(systemLog.getCount()+count);
+            saveSystemLog(name, count, millis);
+        } else {
+            systemLog.setCount(systemLog.getCount() + count);
+            systemLog.setMillis(systemLog.getMillis() + millis);
             saveOrUpdate(systemLog, new String[]{"trade_date", "name"});
         }
     }
@@ -40,6 +41,6 @@ public class SystemLogServiceImpl extends MybatisBaseServiceImpl<SystemLogMapper
     public void printSystemLogs(LocalDate tradeDate) {
         SystemLog systemLog = SystemLog.builder().tradeDate(tradeDate).build();
         List<SystemLog> list = queryList(systemLog);
-        list.forEach(gg -> log.info("---> {} {} : {}", tradeDate, gg.getName(), gg.getCount()));
+        list.forEach(gg -> log.info("---> {} {} : {} {}ms", tradeDate, gg.getName(), gg.getCount(), gg.getMillis()));
     }
 }

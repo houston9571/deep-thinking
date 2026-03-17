@@ -1,5 +1,6 @@
 package com.deepthinking.service;
 
+import com.deepthinking.mysql.entity.DragonStock;
 import com.deepthinking.mysql.entity.DragonStockDetail;
 
 import java.time.LocalDate;
@@ -10,6 +11,6 @@ public interface DragonStockDetailService {
 
     List<List<DragonStockDetail>> queryDragonStockDetailWithPartner();
 
-    int syncDragonStockDetail(LocalDate date, String stockCode, String stockName) ;
+    int syncDragonStockDetailList(List<DragonStock> list) ;
 
 }

@@ -10,9 +10,9 @@ import java.util.List;
 public interface SystemLogService extends MybatisBaseService<SystemLog> {
 
 
-    void saveSystemLog(String name, int count);
+    void saveSystemLog(String name, int count, long millis);
 
-    void plusSystemLog(String name, int count);
+    void plusSystemLog(String name, int count, long millis);
 
     void printSystemLogs(LocalDate tradeDate);
 }

@@ -66,7 +66,7 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
     /**
      * 概念板块列表，按涨跌幅排序
      */
-    public void syncConceptTradeList(int top) {
+    public int syncConceptTradeList(int top) {
         int total = 0, count = 0, pageNum = 0, pageSize = Math.min(top, 100);
         List<ConceptDelay> list = new ArrayList<>();
         do {
@@ -103,7 +103,7 @@ public class ConceptDelayServiceImpl extends MybatisBaseServiceImpl<ConceptDelay
 //        }
 //        log.info(">>>>>syncConceptStocks finished stock_count:{} ", map.size());
 //        stockPoolService.addStockPools(map);
-
+        return list.size();
     }
 
     /**

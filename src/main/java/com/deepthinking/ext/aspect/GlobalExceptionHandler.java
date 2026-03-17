@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.deepthinking.common.exception.ParamValidatorException;
 import com.deepthinking.common.exception.ServiceException;
 import com.deepthinking.ext.base.Result;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.FieldError;
@@ -20,6 +21,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 import static cn.hutool.core.text.StrPool.COLON;
 import static com.deepthinking.common.enums.ErrorCode.*;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 /**
  * 全局异常处理
@@ -28,6 +30,13 @@ import static com.deepthinking.common.enums.ErrorCode.*;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    @ResponseBody
+    @ExceptionHandler({NoResourceFoundException.class})
+    public void handleException(NoResourceFoundException e, HttpServletResponse response) {
+        response.setStatus(SC_NOT_FOUND);
+        log.error("[NO_RESOURCE_FOUND]找不到该资源: {}", e.getMessage());
+    }
 
     /**
      * 处理自定义异常
@@ -45,11 +54,6 @@ public class GlobalExceptionHandler {
         return loggingError(Result.fail(REQUEST_UNSUPPORTED));
     }
 
-    @ResponseBody
-    @ExceptionHandler({NoResourceFoundException.class})
-    public Result<Void> handleException(NoResourceFoundException e) {
-        return loggingError(Result.fail(NO_RESOURCE_FOUND, e.getMessage()));
-    }
 
     @ResponseBody
     @ExceptionHandler({DuplicateKeyException.class, SQLIntegrityConstraintViolationException.class, SQLException.class})

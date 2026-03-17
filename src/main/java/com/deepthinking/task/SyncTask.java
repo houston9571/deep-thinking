@@ -1,8 +1,10 @@
 package com.deepthinking.task;
 
+import cn.hutool.core.date.StopWatch;
 import com.deepthinking.common.thread.Threads;
 import com.deepthinking.common.utils.OSUtils;
 import com.deepthinking.ext.base.Result;
+import com.deepthinking.mysql.entity.DragonStock;
 import com.deepthinking.mysql.entity.StockKlineDaily;
 import com.deepthinking.service.*;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ import static com.deepthinking.common.constant.MarketType.*;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SyncTask {
+class SyncTask {
 
     private final StockPoolService stockPoolService;
 
@@ -41,8 +43,9 @@ public class SyncTask {
 
     private final DragonStockService dragonStockService;
 
-    private final SystemLogService systemLogService;
+    private final DragonStockDetailService dragonStockDetailService;
 
+    private final SystemLogService systemLogService;
 
 
     @Scheduled(cron = "0 03,33 * * * ?")
@@ -63,14 +66,20 @@ public class SyncTask {
     @Scheduled(cron = "0 0/1 9-12,13-15 ? * 1-5")
     void syncStockCalcKlineIndicators() {
         if (isTradeTime() && LocalTime.now().isAfter(MORNING_0945)) {                   // 09:45开始同步，k线指标才能满足数量15
-            log.info(" --> 同步股票K线行情 stock_kline_minute】开始 ");
+            StopWatch watch = new StopWatch();
+            log.info(" --> 同步股票K线行情【stock_kline_minute】开始 ");
+            watch.start();
             int size = stockKlineMinuteService.syncStockKlineMinute();
-            systemLogService.plusSystemLog("stock_kline_minute", size);
-            log.info(" --> 同步股票K线行情 stock_kline_minute】结束: {} ", size);
+            watch.stop();
+            systemLogService.plusSystemLog("stock_kline_minute", size, watch.getLastTaskTimeMillis());
+            log.info(" --> 同步股票K线行情【stock_kline_minute】结束: {} {}ms", size, watch.getLastTaskTimeMillis());
+
             log.info(" --> 计算股票K线指标【stock_tech_minute】开始 ");
+            watch.start();
             size = stockTechMinuteService.syncStockTechMinute();
-            systemLogService.plusSystemLog("stock_tech_minute", size);
-            log.info(" --> 计算股票K线指标【stock_tech_minute】结束: {} ", size);
+            watch.stop();
+            systemLogService.plusSystemLog("stock_tech_minute", size, watch.getLastTaskTimeMillis());
+            log.info(" --> 计算股票K线指标【stock_tech_minute】结束: {} {}ms", size, watch.getLastTaskTimeMillis());
         }
     }
 
@@ -80,46 +89,49 @@ public class SyncTask {
 //    @Scheduled(cron = "0 42/30  9-11 ? * 1-5 ")       // → 触发时间：09:42, 10:12, 10:42, 11:12, 11:42
 //    @Scheduled(cron = "0 12/30 13-15 ? * 1-5 ")       // → 触发时间：13:12, 13:42, 14:12, 14:42, 15:12
     @Scheduled(cron = "0 0/10 9-12,13-15 ? * 1-5 ")
-    public void syncStockKlineDailyList() {
+    void syncStockKlineDailyList() {
         if (isTradeTime()) {
             Threads.sleep(20_000);
-            String tradeDate = getTradeDateStr();
-            log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始 ");
-            List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList(tradeDate);      // 全量同步股票日线实时行情
-            systemLogService.saveSystemLog("stock_kline_daily", list.size());
-            log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束：{} ", list.size());
-
-            // 计算日线指标
-//            for (StockKlineDaily stock : list) {
-//                stockTechDailyService.calcStockTechDaily(stock.getStockCode(), tradeDate);
-//            }
+            syncStockKlineDailyAndCalcIndicator();
         }
     }
 
-    @Scheduled(cron = "0 10 15 ? * 1-5 ")
-    public void syncStockKlineDailyList2() {
+    @Scheduled(cron = "0 2 15 ? * 1-5 ")
+    void syncStockKlineDailyList2() {
         if (isTradeDate()) {
-            log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始");
-            List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList(getTradeDateStr());      // 全量同步股票日线实时行情
-            systemLogService.saveSystemLog("stock_kline_daily", list.size());
-            log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束：{}", list);
-            // 计算日线指标
-//            for (StockKlineDaily stock : list) {
-//                stockTechDailyService.calcStockTechDaily(stock.getStockCode(), tradeDate);
-//            }
+            syncStockKlineDailyAndCalcIndicator();
+        }
+    }
+
+    private void syncStockKlineDailyAndCalcIndicator() {
+        String tradeDate = getTradeDateStr();
+        log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】开始");
+        StopWatch watch = new StopWatch();
+        watch.start();
+        List<StockKlineDaily> list = stockKlineDailyService.syncStockKlineDailyList(tradeDate);      // 全量同步股票日线实时行情
+        watch.stop();
+        systemLogService.saveSystemLog("stock_kline_daily", list.size(), watch.getLastTaskTimeMillis());
+        log.info(" --> 同步股票日线行情及股票池筛选【stock_kline_daily】结束：{} {}ms", list, watch.getLastTaskTimeMillis());
+        // 计算日线指标
+        for (StockKlineDaily stock : list) {
+            stockTechDailyService.calcStockTechDaily(stock.getStockCode(), tradeDate);
         }
     }
 
     /**
-     * 执行股票池策略精选   只根据基本面、隔夜原则、技术指标初步选入股票池
+     * 股票池策略精选
+     * 根据基本面、隔夜原则、技术指标初步选入股票池
      */
     @Scheduled(cron = "0 32 14 ? * 1-5 ")
-    public void syncStockPool() {
+    void syncStockPool() {
         if (isTradeDate()) {
             log.info(" --> 执行股票池策略精选【stock_pool】开始 ");
+            StopWatch watch = new StopWatch();
+            watch.start();
             int size = stockPoolService.execStockPoolSelection(getTradeDateStr());
-            systemLogService.saveSystemLog("stock_pool", size);
-            log.info(" --> 执行股票池策略精选【stock_pool】结束：{} ", size);
+            watch.stop();
+            systemLogService.saveSystemLog("stock_pool", size, watch.getLastTaskTimeMillis());
+            log.info(" --> 执行股票池策略精选【stock_pool】结束：{} {}ms", size, watch.getLastTaskTimeMillis());
         }
     }
 
@@ -131,11 +143,15 @@ public class SyncTask {
      * 3. 维护概念名称表
      */
     @Scheduled(cron = "0 0 5 ? * 1-5 ")
-    public void syncStockInfo() {
+    void syncStockInfo() {
         if (isTradeDate()) {
             log.info(" --> 同步股票基本信息【stock_info】开始");
+            StopWatch watch = new StopWatch();
+            watch.start();
             int size = stockInfoService.syncStockInfoAll();
-            log.info(" --> 同步股票基本信息【stock_info】结束 {}", size);
+            watch.stop();
+            systemLogService.saveSystemLog("stock_info", size, watch.getLastTaskTimeMillis());
+            log.info(" --> 同步股票基本信息【stock_info】结束 {} {}ms", size, watch.getLastTaskTimeMillis());
         }
     }
 
@@ -148,20 +164,26 @@ public class SyncTask {
     void syncConceptDaily() {
         if (isTradeTime()) {
             Threads.sleep(10_000);
-            log.info(" --> 同步概念板块【concept_daily】开始 top100");
-            conceptDelayService.syncConceptTradeList(100);
-            log.info(" --> 同步概念板块【concept_daily】结束 top100");
+            syncConceptTradeList();
         }
     }
 
-    @Scheduled(cron = "0 5 15 ? * 1-5")
+    @Scheduled(cron = "0 3 15 ? * 1-5")
     void syncConceptDaily2() {
         if (isTradeDate()) {
             Threads.sleep(10_000);
-            log.info(" --> 同步概念板块【concept_daily】开始 top100");
-            conceptDelayService.syncConceptTradeList(100);
-            log.info(" --> 同步概念板块【concept_daily】结束 top100");
+            syncConceptTradeList();
         }
+    }
+
+    private void syncConceptTradeList() {
+        log.info(" --> 同步概念板块【concept_daily】开始 top100");
+        StopWatch watch = new StopWatch();
+        watch.start();
+        int size = conceptDelayService.syncConceptTradeList(100);
+        watch.stop();
+        systemLogService.saveSystemLog("stock_info", 100, watch.getLastTaskTimeMillis());
+        log.info(" --> 同步概念板块【concept_daily】结束 top100 {} {}ms", size, watch.getLastTaskTimeMillis());
     }
 
     /**************************** 龙虎榜 ***********************************/
@@ -171,26 +193,39 @@ public class SyncTask {
      * 2. 龙虎榜个股买卖数据和个股前5买卖详情
      */
     @Scheduled(cron = "0 10,20,30 17 ? * 1-5 ")
-    public void syncDragonDeptList() {
+    void syncDragonDeptList() {
         if (isTradeDate()) {
             log.info(" --> 同步龙虎榜【dragon_dept】开始");
+            StopWatch watch = new StopWatch();
             Long count = dragonDeptService.countDragonDept();
             if (count < 10) {
+                watch.start();
                 int size = dragonDeptService.syncDragonDeptList(getTradeDateStr());
-                systemLogService.saveSystemLog("dragon_dept", size);
-                log.info(" --> 同步龙虎榜【dragon_dept】结束: {}", size);
+                watch.stop();
+                systemLogService.saveSystemLog("dragon_dept", size, watch.getLastTaskTimeMillis());
+                log.info(" --> 同步龙虎榜【dragon_dept】结束: {} {}ms", size, watch.getLastTaskTimeMillis());
             } else {
-                log.info(" --> 同步龙虎榜【dragon_dept】重复同步 count={}", count);
+                log.info(" --> 同步龙虎榜【dragon_dept】重复同步 count:{}", count);
             }
+
             Threads.sleep(30_000);
             log.info(" --> 同步龙虎榜【dragon_stock】开始");
             count = dragonStockService.countDragonStock();
             if (count < 10) {
-                int size = dragonStockService.syncDragonStockList(getTradeDateStr());
-                systemLogService.saveSystemLog("dragon_stock", size);
-                log.info(" --> 同步龙虎榜【dragon_stock】结束: {}", size);
+                watch.start();
+                List<DragonStock> list = dragonStockService.syncDragonStockList(getTradeDateStr());
+                watch.stop();
+                systemLogService.saveSystemLog("dragon_stock", list.size(), watch.getLastTaskTimeMillis());
+                log.info(" --> 同步龙虎榜【dragon_stock】结束: {} {}ms", list.size(), watch.getLastTaskTimeMillis());
+
+                log.info(" --> 同步龙虎榜详情【dragon_stock_detail】开始");
+                watch.start();
+                int size = dragonStockDetailService.syncDragonStockDetailList(list);
+                watch.stop();
+                systemLogService.saveSystemLog("dragon_stock_detail", size, watch.getLastTaskTimeMillis());
+                log.info(" --> 同步龙虎榜详情【dragon_stock_detail】结束: {} {}ms", size, watch.getLastTaskTimeMillis());
             } else {
-                log.info(" --> 同步龙虎榜【dragon_stock】重复同步 count={}", count);
+                log.info(" --> 同步龙虎榜【dragon_stock】重复同步 count:{}", count);
             }
         }
     }

@@ -11,7 +11,7 @@ public interface StockKlineDailyMapper extends BaseMapper<StockKlineDaily> {
 
 
 
-    @Select("SELECT * FROM stock_kline_daily WHERE stock_code = #{stockCode} ORDER BY update_time DESC LIMIT #{limit} ")
+    @Select("SELECT * FROM stock_kline_daily WHERE stock_code = #{stockCode} ORDER BY trade_date DESC LIMIT #{limit} ")
     List<StockKlineDaily> getStockKlineDailyLimit(String stockCode, int limit);
 
 }
